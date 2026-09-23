@@ -12,8 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Flag } from "@/components/brand/flag";
 import { SpiceMeter, Stars } from "@/components/ui/misc";
 import { Link } from "@/i18n/navigation";
-import { env } from "@/lib/env";
 import type { Locale } from "@/config/site";
+import { getAppUrl } from "@/lib/app-url";
 
 export const revalidate = 300;
 
@@ -70,7 +70,7 @@ export default async function ProductPage({ params }: Props) {
   const size = product.volumeMl ? t("ml", { value: product.volumeMl }) : product.weightGrams ? t("grams", { value: product.weightGrams }) : null;
   const isPlaceholder = product.images.every((i) => i.url.endsWith(".svg"));
   const n = product.nutrition;
-  const appUrl = env().NEXT_PUBLIC_APP_URL;
+  const appUrl = getAppUrl();
   const productUrl = `${appUrl}${locale === "uk" ? "" : `/${locale}`}/products/${product.slug}`;
 
   const jsonLd = {

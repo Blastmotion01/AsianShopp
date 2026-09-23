@@ -2,7 +2,6 @@ import "server-only";
 import type { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { env } from "@/lib/env";
 import { formatPrice } from "@/lib/money";
 import type { Locale } from "@/config/site";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -16,6 +15,7 @@ import { pickLocalized } from "@/lib/localized";
 import { defaultLocale } from "@/config/site";
 import type { CheckoutData } from "./schemas";
 import { canTransition, formatOrderNumber } from "./status";
+import { getAppUrl } from "@/lib/app-url";
 
 export type CreateOrderResult = { orderId: string; number: string; redirectUrl: string | null };
 
@@ -157,7 +157,7 @@ export async function startPayment(orderId: string): Promise<string | null> {
   const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
   if (order.paymentStatus === "PAID") return null;
   const provider = getPaymentProvider();
-  const appUrl = env().NEXT_PUBLIC_APP_URL;
+  const appUrl = getAppUrl();
   try {
     const result = await provider.createPayment({
       orderId: order.id,

@@ -3,7 +3,6 @@ import { z } from "zod";
 
 const schema = z.object({
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
-  NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   // Unset → vercel-blob when BLOB_READ_WRITE_TOKEN exists, otherwise local.
   STORAGE_PROVIDER: z
     .enum(["local", "vercel-blob", "cloudinary", "s3", "supabase"])

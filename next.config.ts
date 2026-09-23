@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "8mb" },
   },
+  // Browsers always request /favicon.ico — serve the SVG icon instead of hitting page routes.
+  async rewrites() {
+    return [{ source: "/favicon.ico", destination: "/icon.svg" }];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

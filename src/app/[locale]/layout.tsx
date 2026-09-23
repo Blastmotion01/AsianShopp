@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { routing } from "@/i18n/routing";
 import { manrope, unbounded } from "@/lib/fonts";
 import { StoreProvider } from "@/features/store/store-provider";
+import { getAppUrl } from "@/lib/app-url";
 
 // Empty list on purpose: nothing is prerendered at build time (the build never needs the
 // database); each page is rendered on its first request and then cached (ISR, see `revalidate`).
@@ -17,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const base = getAppUrl();
   return {
     metadataBase: new URL(base),
     title: { default: t("title"), template: "%s · AsiaShop" },

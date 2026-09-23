@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllProductSlugs } from "@/features/products/queries";
 import { db } from "@/lib/db";
+import { getAppUrl } from "@/lib/app-url";
 
 // Rendered on request (reads the database), so the build doesn't depend on DB access.
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 const LOCALE_PREFIX = { uk: "", ru: "/ru", en: "/en" } as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const base = getAppUrl();
   const entry = (path: string, lastModified?: Date, priority = 0.7): MetadataRoute.Sitemap[number] => ({
     url: `${base}${path || "/"}`,
     lastModified,

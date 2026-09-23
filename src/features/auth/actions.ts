@@ -2,7 +2,7 @@
 
 import { getLocale } from "next-intl/server";
 import { db } from "@/lib/db";
-import { env } from "@/lib/env";
+import { getAppUrl } from "@/lib/app-url";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { createSession, destroyAllSessions, destroySession } from "@/lib/auth/session";
 import { hashToken, randomToken } from "@/lib/auth/tokens";
@@ -88,7 +88,7 @@ export async function forgotPasswordAction(_: FormState, fd: FormData): Promise<
       });
       const locale = await getLocale();
       const prefix = locale === "uk" ? "" : `/${locale}`;
-      notify({ type: "password_reset", to: user.email, url: `${env().NEXT_PUBLIC_APP_URL}${prefix}/reset-password?token=${token}` });
+      notify({ type: "password_reset", to: user.email, url: `${getAppUrl()}${prefix}/reset-password?token=${token}` });
     }
     return { ok: true };
   } catch (err) {

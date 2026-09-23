@@ -25,10 +25,21 @@ function resolveDatabaseUrl() {
   return undefined;
 }
 
+const resolvedUrl = resolveDatabaseUrl();
+// The schema references DATABASE_URL / DATABASE_URL_UNPOOLED by name. With prefixed
+// integration variables (STORAGE_*) those may be absent or empty at runtime, so point
+// them at the resolved URL — Prisma must never fail just because of variable naming.
+if (resolvedUrl) {
+  if (!process.env.DATABASE_URL?.trim() || (process.env.VERCEL && /localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL))) {
+    process.env.DATABASE_URL = resolvedUrl;
+  }
+  if (!process.env.DATABASE_URL_UNPOOLED?.trim()) process.env.DATABASE_URL_UNPOOLED = resolvedUrl;
+}
+
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    datasourceUrl: resolveDatabaseUrl(),
+    datasourceUrl: resolvedUrl,
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 
