@@ -17,21 +17,26 @@ try {
 
 const env = process.env;
 // On Vercel, ignore empty values and leftovers from .env.example that point at a local database.
-const isUsable = (v) => !!v && v.trim() !== "" && !(env.VERCEL && /localhost|127\.0\.0\.1/.test(v));
+const isUsable = (v) => !!v && /^postgres(ql)?:\/\//.test(v.trim()) && !(env.VERCEL && /localhost|127\.0\.0\.1/.test(v));
 const keys = Object.keys(env).filter((k) => isUsable(env[k]));
+// Custom prefixes chosen when connecting the DB (e.g. "STORAGE" → STORAGE_URL, STORAGE_POSTGRES_HOST).
+const prefixes = Object.keys(env)
+  .map((k) => /^(.+)_(POSTGRES_HOST|PGHOST)$/.exec(k)?.[1])
+  .filter(Boolean);
 
-/** Finds a variable by exact name first, then by suffix (to support custom prefixes). */
-function find(...suffixes) {
+/** Finds a variable by exact name, then by suffix (custom prefixes), then prefix-only names like STORAGE_URL. */
+function find(suffixes, prefixForms) {
   for (const s of suffixes) if (keys.includes(s)) return s;
   for (const s of suffixes) {
     const hit = keys.find((k) => k.endsWith(`_${s}`));
     if (hit) return hit;
   }
+  for (const p of prefixes) for (const f of prefixForms) if (keys.includes(`${p}_${f}`)) return `${p}_${f}`;
   return undefined;
 }
 
-const pooledName = find("DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL");
-const directName = find("DATABASE_URL_UNPOOLED", "POSTGRES_URL_NON_POOLING", "DATABASE_URL", "POSTGRES_URL");
+const pooledName = find(["DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL"], ["URL"]);
+const directName = find(["DATABASE_URL_UNPOOLED", "POSTGRES_URL_NON_POOLING", "DATABASE_URL", "POSTGRES_URL"], ["URL_UNPOOLED", "URL"]);
 
 if (!pooledName) {
   const seen = Object.keys(env).filter((k) => /DATABASE|POSTGRES|PG|NEON/i.test(k));
