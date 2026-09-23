@@ -1,0 +1,279 @@
+@import "tailwindcss";
+
+/*
+ * AsiaShop design tokens.
+ * Brand: Pink #FF9DB1 · Cream #FFE3C2 · Coral #F0573A · Graphite · White · Light neutral.
+ * Semantic roles (primary / accent / surface / …) map onto the brand palette so
+ * components never hard-code hex values.
+ */
+@theme {
+  --font-display: var(--font-unbounded), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* brand */
+  --color-pink-50: #fff3f6;
+  --color-pink-100: #ffe4eb;
+  --color-pink-200: #ffc9d5;
+  --color-pink-300: #ff9db1;
+  --color-pink-400: #ff7f99;
+  --color-pink-500: #f0607f;
+  --color-pink-700: #b8395a;
+
+  --color-cream-50: #fffaf3;
+  --color-cream-100: #fff3e4;
+  --color-cream-200: #ffe3c2;
+  --color-cream-300: #ffd29c;
+
+  --color-coral-50: #fff1ed;
+  --color-coral-100: #ffddd3;
+  --color-coral-300: #ff8f73;
+  --color-coral-400: #f7704f;
+  --color-coral-500: #f0573a;
+  --color-coral-600: #d9442a;
+  --color-coral-700: #b3361f; /* coral text on light bg (AA) */
+  --color-coral-800: #8f2b19;
+
+  --color-ink: #2a1f24; /* dark graphite */
+  --color-ink-soft: #4a3f44;
+  --color-muted: #6f6368; /* AA on white & neutral */
+  --color-line: #ece3dc;
+  --color-neutral: #faf6f1; /* light neutral page background */
+  --color-surface: #ffffff;
+
+  /* semantic */
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: #ffffff;
+  --color-accent: var(--color-coral-500);
+  --color-accent-foreground: var(--color-ink);
+  --color-secondary: var(--color-pink-300);
+  --color-background: var(--color-neutral);
+  --color-foreground: var(--color-ink);
+  --color-success: #1f8a5b;
+  --color-success-soft: #e3f5ec;
+  --color-warning: #b86e00;
+  --color-warning-soft: #fff1d6;
+  --color-error: #c8321e;
+  --color-error-soft: #fde7e3;
+
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-2xl: 2.25rem;
+
+  --shadow-soft: 0 1px 2px rgb(42 31 36 / 0.04), 0 8px 24px -12px rgb(42 31 36 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(42 31 36 / 0.05), 0 24px 48px -20px rgb(42 31 36 / 0.3);
+  --shadow-pop: 0 4px 0 0 var(--color-ink);
+  --shadow-pop-sm: 0 3px 0 0 var(--color-ink);
+
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite;
+  --animate-spin-slow: spin 24s linear infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-wiggle: wiggle 0.5s ease-in-out;
+
+  @keyframes float {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+    50% { transform: translate3d(0, -14px, 0) rotate(calc(var(--r, 0deg) + 3deg)); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-8deg) scale(1.1); }
+    75% { transform: rotate(8deg) scale(1.1); }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-coral-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: var(--color-pink-300);
+    color: var(--color-ink);
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .container-page { padding-inline: 2rem; }
+  }
+
+  /* Bubble 3D wordmark. Gradient fill + stacked drop-shadows give soft extrusion. */
+  .logo-bubble {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .logo-bubble .l-asia,
+  .logo-bubble .l-shop {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .logo-bubble .l-asia {
+    background-image: linear-gradient(180deg, #ff9a80 0%, #f0573a 55%, #e14a2e 100%);
+    filter: drop-shadow(0 0.06em 0 #b3361f) drop-shadow(0 0.14em 0.14em rgb(42 31 36 / 0.18));
+  }
+  .logo-bubble .l-shop {
+    background-image: linear-gradient(180deg, #ffd0da 0%, #ff9db1 55%, #f98aa2 100%);
+    filter: drop-shadow(0 0.06em 0 #d86a84) drop-shadow(0 0.14em 0.14em rgb(42 31 36 / 0.18));
+  }
+  .logo-bubble.on-dark .l-shop {
+    filter: drop-shadow(0 0.06em 0 #d86a84);
+  }
+
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 2px solid var(--color-ink);
+    box-shadow: var(--shadow-pop-sm);
+    white-space: nowrap;
+  }
+
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: radial-gradient(rgb(42 31 36 / 0.07) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  /* Card flip (product cards) */
+  .flip-scene { perspective: 1400px; }
+  /* Faces are stacked in one grid cell so the card height = tallest face. */
+  .flip-inner {
+    display: grid;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s var(--ease-soft);
+  }
+  .flip-inner[data-flipped="true"] { transform: rotateY(180deg); }
+  .flip-face {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-back { transform: rotateY(180deg); }
+
+  /* 3D box for the hero */
+  .cube-scene { perspective: 900px; }
+  .cube {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(-22deg) rotateY(-38deg);
+  }
+  .cube-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 1.4rem;
+    backface-visibility: hidden;
+  }
+
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+/* Positioning uses the `translate` property (Tailwind v4), so the animation must only
+   touch opacity/transform-scale — never re-apply the centering offset. */
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slide-out-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes slide-out-left { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes slide-in-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes slide-out-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes reveal-tilt {
+  from { opacity: 0; transform: translateY(48px) rotate(var(--tilt-from, -4deg)); }
+  to { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    .reveal-tilt {
+      animation: reveal-tilt linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
