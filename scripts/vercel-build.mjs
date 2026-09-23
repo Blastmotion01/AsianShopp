@@ -16,7 +16,9 @@ try {
 }
 
 const env = process.env;
-const keys = Object.keys(env).filter((k) => env[k] && env[k].trim() !== "");
+// On Vercel, ignore empty values and leftovers from .env.example that point at a local database.
+const isUsable = (v) => !!v && v.trim() !== "" && !(env.VERCEL && /localhost|127\.0\.0\.1/.test(v));
+const keys = Object.keys(env).filter((k) => isUsable(env[k]));
 
 /** Finds a variable by exact name first, then by suffix (to support custom prefixes). */
 function find(...suffixes) {
@@ -35,7 +37,10 @@ if (!pooledName) {
   const seen = Object.keys(env).filter((k) => /DATABASE|POSTGRES|PG|NEON/i.test(k));
   console.error("\n✖ No database URL found.");
   console.error("  Connect a database to this Vercel project (Storage → Neon → Connect), then Redeploy.");
-  console.error(`  Database-related variables visible to the build: ${seen.length ? seen.join(", ") : "none"}\n`);
+  console.error("  Database-related variables visible to the build:");
+  for (const k of seen) console.error(`    - ${k}${isUsable(env[k]) ? "" : "  (empty or points to localhost — ignored)"}`);
+  if (!seen.length) console.error("    (none)");
+  console.error("");
   process.exit(1);
 }
 

@@ -9,9 +9,11 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
  */
 function resolveDatabaseUrl() {
   const env = process.env;
+  // On Vercel, ignore empty values and .env.example leftovers pointing at a local database.
+  const usable = (v: string | undefined): v is string => !!v && v.trim() !== "" && !(env.VERCEL && /localhost|127\.0\.0\.1/.test(v));
   for (const name of ["DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL"]) {
-    if (env[name]) return env[name];
-    const prefixed = Object.keys(env).find((k) => k.endsWith(`_${name}`) && env[k]);
+    if (usable(env[name])) return env[name];
+    const prefixed = Object.keys(env).find((k) => k.endsWith(`_${name}`) && usable(env[k]));
     if (prefixed) return env[prefixed];
   }
   return undefined;
