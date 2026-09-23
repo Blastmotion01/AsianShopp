@@ -1,7 +1,8 @@
 /**
  * Build entry for Vercel (`npm run vercel-build`).
  * Resolves the database URLs from whatever names the DB integration provided
- * (Neon: DATABASE_URL / DATABASE_URL_UNPOOLED, Vercel Postgres style: POSTGRES_*),
+ * (Neon: DATABASE_URL / DATABASE_URL_UNPOOLED, Vercel Postgres style: POSTGRES_*,
+ * optionally with a custom prefix such as STORAGE_DATABASE_URL),
  * then runs: prisma generate → prisma migrate deploy → next build.
  * Only variable NAMES are logged, never values.
  */
@@ -15,10 +16,20 @@ try {
 }
 
 const env = process.env;
-const first = (...names) => names.find((n) => env[n] && env[n].trim() !== "");
+const keys = Object.keys(env).filter((k) => env[k] && env[k].trim() !== "");
 
-const pooledName = first("DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL");
-const directName = first("DATABASE_URL_UNPOOLED", "POSTGRES_URL_NON_POOLING", "DATABASE_URL", "POSTGRES_URL");
+/** Finds a variable by exact name first, then by suffix (to support custom prefixes). */
+function find(...suffixes) {
+  for (const s of suffixes) if (keys.includes(s)) return s;
+  for (const s of suffixes) {
+    const hit = keys.find((k) => k.endsWith(`_${s}`));
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
+const pooledName = find("DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL");
+const directName = find("DATABASE_URL_UNPOOLED", "POSTGRES_URL_NON_POOLING", "DATABASE_URL", "POSTGRES_URL");
 
 if (!pooledName) {
   const seen = Object.keys(env).filter((k) => /DATABASE|POSTGRES|PG|NEON/i.test(k));
