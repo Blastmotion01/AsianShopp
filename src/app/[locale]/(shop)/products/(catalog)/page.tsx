@@ -12,6 +12,9 @@ import { Link } from "@/i18n/navigation";
 import { pickLocalized } from "@/lib/localized";
 import type { Locale } from "@/config/site";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {

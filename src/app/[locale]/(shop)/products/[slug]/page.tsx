@@ -17,6 +17,11 @@ import type { Locale } from "@/config/site";
 
 export const revalidate = 300;
 
+// Nothing prerendered at build: each product page is rendered on first visit, then cached (ISR).
+export function generateStaticParams() {
+  return [];
+}
+
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

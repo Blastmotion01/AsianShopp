@@ -8,8 +8,10 @@ import { routing } from "@/i18n/routing";
 import { manrope, unbounded } from "@/lib/fonts";
 import { StoreProvider } from "@/features/store/store-provider";
 
+// Empty list on purpose: nothing is prerendered at build time (the build never needs the
+// database); each page is rendered on its first request and then cached (ISR, see `revalidate`).
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {

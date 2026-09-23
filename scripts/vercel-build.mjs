@@ -56,4 +56,22 @@ console.log(`✓ Database: using ${pooledName} (app) and ${directName} (migratio
 const run = (cmd) => execSync(cmd, { stdio: "inherit", env });
 run("npx prisma generate");
 run("npx prisma migrate deploy");
+
+// Fail fast with a clear message if the app's (pooled) connection doesn't work,
+// instead of the site failing later at runtime. Bounded by a timeout.
+try {
+  execSync(`npx prisma db execute --stdin --url ${JSON.stringify(env.DATABASE_URL)}`, {
+    input: "SELECT 1;",
+    stdio: ["pipe", "inherit", "inherit"],
+    env,
+    timeout: 60_000,
+  });
+  console.log(`✓ Database connection OK via ${pooledName}`);
+} catch (err) {
+  console.error(`\n✖ Could not connect to the database via ${pooledName} (${err.code === "ETIMEDOUT" ? "timed out after 60s" : "connection error, see above"}).`);
+  console.error("  Check the Neon database status and that it is connected to this project, then redeploy.\n");
+  process.exit(1);
+}
+
+// The build itself does not touch the database: pages are rendered on first request and cached.
 run("npx next build");

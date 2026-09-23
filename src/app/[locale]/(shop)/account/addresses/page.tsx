@@ -6,6 +6,9 @@ import { AddressForm } from "@/features/account/components/address-form";
 import { deleteAddressAction, setDefaultAddressAction } from "@/features/account/actions";
 import { Badge } from "@/components/ui/badge";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 export default async function AddressesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);

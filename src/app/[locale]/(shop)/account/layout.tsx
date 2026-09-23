@@ -4,6 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUserPage } from "@/lib/auth/guards";
 import { AccountNav } from "@/features/account/components/account-nav";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { robots: { index: false } };
 
 export default async function AccountLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {

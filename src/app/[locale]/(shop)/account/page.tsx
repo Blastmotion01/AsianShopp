@@ -2,6 +2,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUserPage } from "@/lib/auth/guards";
 import { ProfileForm, PasswordForm } from "@/features/account/components/profile-forms";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 export default async function AccountProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);

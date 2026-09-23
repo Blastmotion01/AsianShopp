@@ -14,6 +14,9 @@ import { formatPrice } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/config/site";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 export default async function AccountOrderPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale: raw, id } = await params;
   const locale = raw as Locale;

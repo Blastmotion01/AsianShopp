@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 import { getAllProductSlugs } from "@/features/products/queries";
 import { db } from "@/lib/db";
 
-export const revalidate = 3600;
+// Rendered on request (reads the database), so the build doesn't depend on DB access.
+export const dynamic = "force-dynamic";
 
 const LOCALE_PREFIX = { uk: "", ru: "/ru", en: "/en" } as const;
 

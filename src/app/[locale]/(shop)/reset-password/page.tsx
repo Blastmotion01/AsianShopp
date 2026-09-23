@@ -4,6 +4,9 @@ import { Link } from "@/i18n/navigation";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { ResetForm } from "@/features/auth/components/auth-forms";
 
+// Reads cookies / URL params: always render per request (never statically cached).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { robots: { index: false } };
 
 export default async function ResetPasswordPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ token?: string }> }) {
