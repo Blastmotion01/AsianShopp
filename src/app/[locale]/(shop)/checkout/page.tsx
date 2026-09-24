@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getPaymentProvider } from "@/lib/integrations/payments";
+import { isPaymentTestMode } from "@/lib/integrations/payments";
 import { CheckoutForm } from "@/features/orders/components/checkout-form";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
       <h1 className="mb-8 font-display text-4xl font-extrabold md:text-5xl">{t("title")}</h1>
       <CheckoutForm
         isGuest={!user}
-        paymentTestMode={!getPaymentProvider().live}
+        paymentTestMode={isPaymentTestMode()}
         defaults={{ firstName: user?.firstName ?? "", lastName: user?.lastName ?? "", phone: user?.phone ?? "", email: user?.email ?? "" }}
         addresses={addresses.map((a) => ({
           id: a.id,

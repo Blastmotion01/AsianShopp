@@ -21,6 +21,16 @@ export function getPaymentProvider(id = env().PAYMENT_PROVIDER): PaymentProvider
   return factory();
 }
 
+/** For UI only: whether card payments run in test mode. Never throws — a misconfigured provider must not break checkout pages. */
+export function isPaymentTestMode(): boolean {
+  try {
+    return !getPaymentProvider().live;
+  } catch (err) {
+    console.error("[payments] provider misconfigured:", err instanceof Error ? err.message : err);
+    return true;
+  }
+}
+
 export function getMockProvider() {
   return new MockPaymentProvider(env().AUTH_SECRET);
 }
