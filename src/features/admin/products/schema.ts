@@ -29,6 +29,8 @@ export const variantInputSchema = z.object({
   nameEn: optText(60),
   price: optNum(0.01, 1_000_000).refine((v) => v !== null, "required"),
   compareAtPrice: optNum(0, 1_000_000),
+  /** Purchase cost per unit, UAH (for profit reports) */
+  costPrice: optNum(0, 1_000_000),
   weightGrams: optNum(0, 100_000),
   stock: optNum(0, 1_000_000).transform((v) => Math.floor(v ?? 0)),
 });

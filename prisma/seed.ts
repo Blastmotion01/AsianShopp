@@ -290,15 +290,26 @@ async function seedDemoOrders(users: { id: string; email: string; firstName: str
   console.log("✓ 48 demo orders (last 60 days)");
 }
 
+/**
+ * SEED_DEMO_DATA=false → catalog only (products, categories, promo codes, CMS).
+ * Use it for a real production store: demo reviews would mislead real customers,
+ * and demo customers/orders would pollute revenue and statistics.
+ */
+const withDemoData = process.env.SEED_DEMO_DATA !== "false";
+
 async function main() {
   await seedRoles();
   await seedAdmin();
-  const customers = await seedDemoCustomers();
   await seedCatalog();
-  await seedReviews(customers);
   await seedPromoCodes();
   await seedCms();
-  await seedDemoOrders(customers);
+  if (withDemoData) {
+    const customers = await seedDemoCustomers();
+    await seedReviews(customers);
+    await seedDemoOrders(customers);
+  } else {
+    console.log("• Demo customers, reviews and orders skipped (SEED_DEMO_DATA=false)");
+  }
 }
 
 main()

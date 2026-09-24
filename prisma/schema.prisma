@@ -199,6 +199,8 @@ model ProductVariant {
   name           Json
   price          Int
   compareAtPrice Int?
+  /// Purchase cost per unit (minor units). Used for profit reports; never shown to customers.
+  costPrice      Int?
   weightGrams    Int?
   isDefault      Boolean    @default(false)
   isActive       Boolean    @default(true)
@@ -379,6 +381,8 @@ model OrderItem {
   variantName String?
   imageUrl    String?
   unitPrice   Int
+  /// Cost snapshot at the time of sale (null = cost was not set for this variant).
+  unitCost    Int?
   quantity    Int
   total       Int
 

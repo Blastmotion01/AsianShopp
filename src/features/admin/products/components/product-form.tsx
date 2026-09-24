@@ -167,6 +167,9 @@ export function ProductForm({
                   <Field label={t("oldPrice")} htmlFor={`v-old-${i}`} error={err(`variants.${i}.compareAtPrice`)}>
                     <Input id={`v-old-${i}`} inputMode="decimal" value={v.compareAtPrice} onChange={(e) => setVariant(i, { compareAtPrice: e.target.value })} className="h-10" />
                   </Field>
+                  <Field label={t("costPrice")} htmlFor={`v-cost-${i}`} error={err(`variants.${i}.costPrice`)} hint={i === 0 ? t("costHint") : undefined}>
+                    <Input id={`v-cost-${i}`} inputMode="decimal" value={v.costPrice} onChange={(e) => setVariant(i, { costPrice: e.target.value })} className="h-10" />
+                  </Field>
                   <Field label={t("weight")} htmlFor={`v-w-${i}`} error={err(`variants.${i}.weightGrams`)}>
                     <Input id={`v-w-${i}`} inputMode="numeric" value={v.weightGrams} onChange={(e) => setVariant(i, { weightGrams: e.target.value })} className="h-10" />
                   </Field>
@@ -193,7 +196,7 @@ export function ProductForm({
               variant="soft"
               size="sm"
               className="mt-3"
-              onClick={() => patch({ variants: [...s.variants, { sku: "", nameUk: "", nameRu: "", nameEn: "", price: "", compareAtPrice: "", weightGrams: "", stock: "0" }] })}
+              onClick={() => patch({ variants: [...s.variants, { sku: "", nameUk: "", nameRu: "", nameEn: "", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }] })}
             >
               <Plus aria-hidden="true" /> {t("addVariant")}
             </Button>

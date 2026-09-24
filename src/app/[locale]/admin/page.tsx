@@ -1,5 +1,5 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
-import { Banknote, ShoppingCart, Receipt, Package, Users, AlertTriangle } from "lucide-react";
+import { Banknote, ShoppingCart, Receipt, Package, Users, AlertTriangle, TrendingUp, Percent } from "lucide-react";
 import { requireAdminPage } from "@/lib/auth/guards";
 import { getDashboardData } from "@/features/admin/dashboard";
 import { AdminPageHeader } from "@/features/admin/components/page-header";
@@ -25,6 +25,20 @@ export default async function AdminDashboard({ params }: { params: Promise<{ loc
 
   const kpis = [
     { label: t("revenue"), value: formatPrice(roundUah(data.kpi.revenue), locale), sub: t("last30"), icon: Banknote },
+    {
+      label: t("profit"),
+      value: formatPrice(roundUah(data.kpi.profit), locale),
+      sub: data.kpi.itemsWithoutCost > 0 ? t("missingCost", { count: data.kpi.itemsWithoutCost }) : t("profitHint"),
+      icon: TrendingUp,
+      warn: data.kpi.itemsWithoutCost > 0,
+      href: data.kpi.itemsWithoutCost > 0 ? "/admin/products" : undefined,
+    },
+    {
+      label: t("margin"),
+      value: data.kpi.margin === null ? "—" : format.number(data.kpi.margin, { style: "percent", maximumFractionDigits: 1 }),
+      sub: t("marginHint"),
+      icon: Percent,
+    },
     { label: t("orders"), value: format.number(data.kpi.orders), sub: t("last30"), icon: ShoppingCart },
     { label: t("avgOrder"), value: formatPrice(roundUah(data.kpi.avgOrder), locale), sub: t("last30"), icon: Receipt },
     { label: t("products"), value: format.number(data.kpi.products), icon: Package },
@@ -35,7 +49,7 @@ export default async function AdminDashboard({ params }: { params: Promise<{ loc
   return (
     <div>
       <AdminPageHeader title={tn("dashboard")} description={t("excludesCancelled")} />
-      <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-6">
+      <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((k) => {
           const body = (
             <>

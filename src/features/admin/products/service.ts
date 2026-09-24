@@ -62,6 +62,7 @@ export async function saveProduct(data: ProductData) {
     name: L(v.nameUk, v.nameRu, v.nameEn),
     price: toMinor(v.price as number),
     compareAtPrice: v.compareAtPrice ? toMinor(v.compareAtPrice) : null,
+    costPrice: v.costPrice !== null && v.costPrice !== undefined ? toMinor(v.costPrice) : null,
     weightGrams: v.weightGrams,
     stock: v.stock,
     isDefault: i === 0,
@@ -118,7 +119,7 @@ export async function saveProduct(data: ProductData) {
     const ownIds = new Set(existing?.variants.map((v) => v.id) ?? []);
     await tx.productVariant.deleteMany({ where: { productId: product.id, id: { notIn: keepIds } } });
     for (const v of variantRows) {
-      const payload = { sku: v.sku, name: v.name, price: v.price, compareAtPrice: v.compareAtPrice, weightGrams: v.weightGrams, isDefault: v.isDefault, sortOrder: v.sortOrder, isActive: true };
+      const payload = { sku: v.sku, name: v.name, price: v.price, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice, weightGrams: v.weightGrams, isDefault: v.isDefault, sortOrder: v.sortOrder, isActive: true };
       const variant =
         v.id && ownIds.has(v.id)
           ? await tx.productVariant.update({ where: { id: v.id }, data: payload })
@@ -171,6 +172,7 @@ export async function duplicateProduct(id: string) {
           name: v.name ?? {},
           price: v.price,
           compareAtPrice: v.compareAtPrice,
+          costPrice: v.costPrice,
           weightGrams: v.weightGrams,
           isDefault: v.isDefault,
           sortOrder: v.sortOrder,

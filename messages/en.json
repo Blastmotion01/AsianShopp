@@ -395,23 +395,42 @@
     "questions": {
       "sweet": {
         "q": "Do you have a sweet tooth?",
-        "a": { "love": "Absolutely 🍬", "sometimes": "Sometimes", "no": "Not really" }
+        "a": {
+          "love": "Absolutely 🍬",
+          "sometimes": "Sometimes",
+          "no": "Not really"
+        }
       },
       "spicy": {
         "q": "How about spicy?",
-        "a": { "fire": "The hotter the better 🔥", "mild": "A little is fine", "no": "No, thanks" }
+        "a": {
+          "fire": "The hotter the better 🔥",
+          "mild": "A little is fine",
+          "no": "No, thanks"
+        }
       },
       "format": {
         "q": "Drinks or snacks?",
-        "a": { "drink": "Drinks 🥤", "snack": "Snacks 🍿", "both": "Everything at once" }
+        "a": {
+          "drink": "Drinks 🥤",
+          "snack": "Snacks 🍿",
+          "both": "Everything at once"
+        }
       },
       "unusual": {
         "q": "Into unusual flavours?",
-        "a": { "yes": "Yes, surprise me!", "classic": "Classics, please" }
+        "a": {
+          "yes": "Yes, surprise me!",
+          "classic": "Classics, please"
+        }
       },
       "adventure": {
         "q": "How adventurous are you?",
-        "a": { "1": "Careful 🐣", "2": "Moderate 🙂", "3": "All in 🚀" }
+        "a": {
+          "1": "Careful 🐣",
+          "2": "Moderate 🙂",
+          "3": "All in 🚀"
+        }
       }
     }
   },
@@ -500,7 +519,12 @@
       "recentOrders": "Recent orders",
       "lowStockList": "Needs restocking",
       "noData": "No data yet",
-      "excludesCancelled": "Cancelled orders excluded"
+      "excludesCancelled": "Cancelled orders excluded",
+      "profit": "Profit",
+      "profitHint": "sales − cost of goods, 30 days",
+      "margin": "Margin",
+      "marginHint": "profit share of sales",
+      "missingCost": "{count, plural, one {# item sold} other {# items sold}} without a cost price"
     },
     "products": {
       "title": "Products",
@@ -586,7 +610,9 @@
       "carbs": "Carbs, g",
       "sugar": "Sugars, g",
       "protein": "Protein, g",
-      "salt": "Salt, g"
+      "salt": "Salt, g",
+      "costPrice": "Cost price, ₴",
+      "costHint": "Purchase price per unit. Admin-only, used for profit reports"
     },
     "inventory": {
       "title": "Inventory",

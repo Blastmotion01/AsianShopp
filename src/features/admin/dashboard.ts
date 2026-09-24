@@ -2,6 +2,7 @@ import "server-only";
 import { db } from "@/lib/db";
 import { pickLocalized } from "@/lib/localized";
 import type { Locale } from "@/config/site";
+import { computeProfit } from "./profit";
 
 const DAY = 864e5;
 
@@ -11,7 +12,10 @@ export async function getDashboardData(locale: Locale, days = 30) {
   since.setHours(0, 0, 0, 0);
 
   const [orders, productsCount, customersCount, lowStock, recentOrders, items] = await Promise.all([
-    db.order.findMany({ where: { createdAt: { gte: since }, status: { not: "CANCELLED" } }, select: { createdAt: true, total: true } }),
+    db.order.findMany({
+      where: { createdAt: { gte: since }, status: { not: "CANCELLED" } },
+      select: { createdAt: true, total: true, subtotal: true, discount: true, items: { select: { total: true, quantity: true, unitCost: true } } },
+    }),
     db.product.count({ where: { isActive: true } }),
     db.user.count({ where: { role: { key: "CUSTOMER" } } }),
     db.inventory.findMany({
@@ -28,6 +32,7 @@ export async function getDashboardData(locale: Locale, days = 30) {
   ]);
 
   const revenue = orders.reduce((s, o) => s + o.total, 0);
+  const profit = computeProfit(orders);
   const lowStockCount = await db.inventory.count({ where: { quantity: { lte: 5 }, variant: { isActive: true, product: { isActive: true } } } });
 
   // Daily series (every day present, zero-filled)
@@ -60,6 +65,9 @@ export async function getDashboardData(locale: Locale, days = 30) {
       products: productsCount,
       customers: customersCount,
       lowStock: lowStockCount,
+      profit: profit.profit,
+      margin: profit.margin,
+      itemsWithoutCost: profit.itemsWithoutCost,
     },
     daily,
     byCategory: group((i) => (i.product ? pickLocalized(i.product.category.name, locale) : "—")),

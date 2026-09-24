@@ -62,6 +62,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
         nameEn: loc(v.name, "en"),
         price: uah(v.price),
         compareAtPrice: uah(v.compareAtPrice),
+        costPrice: uah(v.costPrice),
         weightGrams: str(v.weightGrams),
         stock: str(v.inventory?.quantity ?? 0),
       })),

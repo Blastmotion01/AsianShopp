@@ -48,6 +48,8 @@ export async function createOrder(input: CheckoutData, locale: Locale): Promise<
         variantName: p._count.variants > 1 ? pickLocalized(v.name, locale) : null,
         imageUrl: p.images[0]?.url ?? null,
         unitPrice: v.price,
+        // Cost snapshot for profit reports (later cost changes don't rewrite history)
+        unitCost: v.costPrice,
         quantity: item.quantity,
         total: v.price * item.quantity,
       };
