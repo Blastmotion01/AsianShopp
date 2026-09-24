@@ -1,6 +1,6 @@
 /** Shared (server + client) editor state for the admin product form. */
 type Locale3 = "uk" | "ru" | "en";
-type VariantState = { id?: string; sku: string; nameUk: string; nameRu: string; nameEn: string; price: string; compareAtPrice: string; costPrice: string; weightGrams: string; stock: string };
+type VariantState = { id?: string; sku: string; barcode: string; nameUk: string; nameRu: string; nameEn: string; price: string; compareAtPrice: string; costPrice: string; weightGrams: string; stock: string };
 export type ProductFormState = {
   id?: string;
   slug: string;
@@ -39,7 +39,7 @@ export const EMPTY_PRODUCT: ProductFormState = {
   isLimited: false,
   isActive: true,
   images: [],
-  variants: [{ sku: "", nameUk: "1 шт", nameRu: "1 шт", nameEn: "Single", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }],
+  variants: [{ sku: "", barcode: "", nameUk: "1 шт", nameRu: "1 шт", nameEn: "Single", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }],
   nutrition: { energyKcal: "", fat: "", carbs: "", sugar: "", protein: "", salt: "" },
   seoTitle: { uk: "", ru: "", en: "" },
   seoDescription: { uk: "", ru: "", en: "" },

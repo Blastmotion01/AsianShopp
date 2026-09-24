@@ -212,6 +212,31 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     await deleteProducts([p.id]);
   });
 
+  it("scanner: finds a variant by barcode (or SKU), unknown code → null, barcode can't be reused", async () => {
+    const { findByCode } = await import("@/features/admin/scan/service");
+    const category = await db.category.findFirstOrThrow({ where: { slug: "snacks" } });
+    const code = `99${Date.now().toString().slice(-11)}`; // 13 digits, unique per run
+    const base = {
+      slug: `${RUN}-scan`,
+      translations: { uk: { name: `Скан ${RUN}`, shortDescription: "Тест" }, ru: {}, en: {} },
+      categoryId: category.id,
+      variants: [{ sku: `${RUN}-SCAN-1`.toUpperCase(), barcode: code, nameUk: "1 шт", price: "50", stock: "3" }],
+    };
+    const p = await saveProduct(productInputSchema.parse(base), "vitest");
+
+    const byBarcode = await findByCode(` ${code} `);
+    expect(byBarcode).toMatchObject({ productId: p.id, matchedBy: "barcode", stock: 3 });
+    const bySku = await findByCode(`${RUN}-scan-1`);
+    expect(bySku).toMatchObject({ productId: p.id, matchedBy: "sku" });
+    expect(await findByCode("0000000000000")).toBeNull();
+
+    // another product can't take the same barcode
+    await expect(
+      saveProduct(productInputSchema.parse({ ...base, slug: `${RUN}-scan-2`, variants: [{ ...base.variants[0], sku: `${RUN}-SCAN-2`.toUpperCase() }] })),
+    ).rejects.toMatchObject({ code: "barcode_taken" });
+    await deleteProducts([p.id]);
+  });
+
   it("admin authorization: anonymous and customers are rejected server-side", async () => {
     jar.clear();
     await expect(requirePermission("products:write")).rejects.toMatchObject({ code: "unauthorized" });

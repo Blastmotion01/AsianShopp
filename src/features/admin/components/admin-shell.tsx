@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import { Dialog as D } from "radix-ui";
-import { LayoutDashboard, Package, Warehouse, ShoppingCart, Users, TicketPercent, LayoutTemplate, ScrollText, ArrowLeft, Menu } from "lucide-react";
+import { LayoutDashboard, Package, Warehouse, ShoppingCart, Users, TicketPercent, LayoutTemplate, ScrollText, ArrowLeft, Menu, ScanBarcode } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Logo } from "@/components/brand/logo";
 import { SheetContent } from "@/components/ui/dialog";
@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin", key: "dashboard", icon: LayoutDashboard, perm: "dashboard:read", exact: true },
   { href: "/admin/products", key: "products", icon: Package, perm: "products:write" },
   { href: "/admin/inventory", key: "inventory", icon: Warehouse, perm: "inventory:write" },
+  { href: "/admin/scan", key: "scan", icon: ScanBarcode, perm: "products:write" },
   { href: "/admin/orders", key: "orders", icon: ShoppingCart, perm: "orders:read" },
   { href: "/admin/customers", key: "customers", icon: Users, perm: "customers:read" },
   { href: "/admin/promocodes", key: "promocodes", icon: TicketPercent, perm: "promocodes:write" },

@@ -46,6 +46,16 @@ export async function saveProduct(data: ProductData, actorName = "Admin") {
   });
   if (skuClash) throw new AppError("sku_taken", 400, { sku: skuClash.sku });
 
+  // Barcode uniqueness across other products (one code = one variant)
+  const barcodes = data.variants.map((v) => v.barcode).filter((b): b is string => !!b);
+  if (barcodes.length) {
+    const codeClash = await db.productVariant.findFirst({
+      where: { barcode: { in: barcodes }, ...(data.id ? { productId: { not: data.id } } : {}) },
+      select: { barcode: true },
+    });
+    if (codeClash) throw new AppError("barcode_taken", 400, { barcode: codeClash.barcode });
+  }
+
   const category = await db.category.findUnique({ where: { id: data.categoryId } });
   if (!category) throw new AppError("validation");
   const country = data.countryId ? await db.country.findUnique({ where: { id: data.countryId } }) : null;
@@ -64,6 +74,7 @@ export async function saveProduct(data: ProductData, actorName = "Admin") {
   const variantRows = data.variants.map((v, i) => ({
     id: v.id,
     sku: v.sku,
+    barcode: v.barcode,
     name: L(v.nameUk, v.nameRu, v.nameEn),
     price: toMinor(v.price as number),
     compareAtPrice: v.compareAtPrice ? toMinor(v.compareAtPrice) : null,
@@ -124,7 +135,7 @@ export async function saveProduct(data: ProductData, actorName = "Admin") {
     const ownIds = new Set(existing?.variants.map((v) => v.id) ?? []);
     await tx.productVariant.deleteMany({ where: { productId: product.id, id: { notIn: keepIds } } });
     for (const v of variantRows) {
-      const payload = { sku: v.sku, name: v.name, price: v.price, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice, weightGrams: v.weightGrams, isDefault: v.isDefault, sortOrder: v.sortOrder, isActive: true };
+      const payload = { sku: v.sku, barcode: v.barcode, name: v.name, price: v.price, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice, weightGrams: v.weightGrams, isDefault: v.isDefault, sortOrder: v.sortOrder, isActive: true };
       const isNew = !(v.id && ownIds.has(v.id));
       const variant = isNew
         ? await tx.productVariant.create({ data: { ...payload, productId: product.id } })

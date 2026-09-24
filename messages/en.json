@@ -480,7 +480,8 @@
     "errorTitle": "Something broke",
     "errorText": "We’re aware of the issue. Try refreshing the page.",
     "tryAgain": "Try again",
-    "toHome": "Go home"
+    "toHome": "Go home",
+    "barcode_taken": "This barcode already belongs to another product"
   },
   "validation": {
     "required": "Required field",
@@ -502,7 +503,8 @@
       "promocodes": "Promo codes",
       "cms": "Content",
       "logs": "Activity log",
-      "backToShop": "Back to shop"
+      "backToShop": "Back to shop",
+      "scan": "Scanner"
     },
     "dashboard": {
       "revenue": "Revenue",
@@ -614,7 +616,9 @@
       "costPrice": "Cost price, ₴",
       "costHint": "Purchase price per unit (weighted average). Updated automatically by “Receive” in Inventory",
       "stockInitial": "Opening stock",
-      "stockInitialHint": "With a cost price it is recorded as the first receipt. Later deliveries — via “Receive” in Inventory"
+      "stockInitialHint": "With a cost price it is recorded as the first receipt. Later deliveries — via “Receive” in Inventory",
+      "barcode": "Barcode",
+      "scanBarcode": "Scan barcode"
     },
     "inventory": {
       "title": "Inventory",
@@ -662,7 +666,8 @@
       "receiveSubmit": "Receive",
       "received": "Received. Stock {stock} pcs, cost {cost}",
       "newProduct": "New product",
-      "initialStock": "Opening stock"
+      "initialStock": "Opening stock",
+      "scanner": "Scanner"
     },
     "orders": {
       "title": "Orders",
@@ -774,6 +779,27 @@
       "details": "Details",
       "noLogs": "No entries yet"
     },
-    "pagination": "Page {page} of {total}"
+    "pagination": "Page {page} of {total}",
+    "scan": {
+      "title": "Scanner",
+      "subtitle": "Point the camera at a barcode. A known product opens for editing, an unknown one opens as a new product",
+      "aim": "Fit the barcode inside the frame",
+      "searching": "Looking up {code}…",
+      "found": "Found: {name}",
+      "notFound": "No product with code {code} yet — creating a new one",
+      "manualLabel": "Enter code manually",
+      "manualPlaceholder": "Barcode digits or SKU",
+      "find": "Find",
+      "hint": "Supports EAN-13, EAN-8, UPC, Code 128/39, ITF and QR. The camera works over HTTPS only",
+      "cameraLabel": "Scanner camera",
+      "torch": "Flashlight",
+      "error_denied": "No camera access. Allow the camera in browser settings or enter the code manually",
+      "error_nocamera": "No camera found. Enter the code manually",
+      "error_insecure": "The camera works over HTTPS only. Enter the code manually",
+      "error_failed": "Couldn't start the camera. Enter the code manually",
+      "bannerNew": "No product with barcode {code} yet — fill in the card, the code is already set",
+      "bannerFound": "Found by barcode {code}",
+      "scanNext": "Scan next"
+    }
   }
 }

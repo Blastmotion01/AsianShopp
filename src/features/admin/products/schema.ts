@@ -24,6 +24,14 @@ export const variantInputSchema = z.object({
     .min(1, "required")
     .max(64, "tooLong")
     .regex(/^[A-Za-z0-9._-]+$/, "invalid"),
+  /** Package barcode (EAN/UPC/Code128). Empty → none. */
+  barcode: z
+    .string()
+    .optional()
+    .default("")
+    .transform((v) => normalizeBarcode(v))
+    .pipe(z.string().max(64, "tooLong").regex(/^[A-Za-z0-9._-]*$/, "invalid"))
+    .transform((v) => v || null),
   nameUk: z.string().trim().min(1, "required").max(60, "tooLong"),
   nameRu: optText(60),
   nameEn: optText(60),
@@ -90,10 +98,19 @@ export const productInputSchema = z
     skus.forEach((s, i) => {
       if (skus.indexOf(s) !== i) ctx.addIssue({ code: "custom", path: ["variants", i, "sku"], message: "sku_taken" });
     });
+    const codes = v.variants.map((x) => x.barcode);
+    codes.forEach((c, i) => {
+      if (c && codes.indexOf(c) !== i) ctx.addIssue({ code: "custom", path: ["variants", i, "barcode"], message: "barcode_taken" });
+    });
   });
 
 export type ProductInput = z.input<typeof productInputSchema>;
 export type ProductData = z.output<typeof productInputSchema>;
+
+/** Barcodes are compared without spaces/dashes-noise; letters upper-cased (Code128 may contain them). */
+export function normalizeBarcode(raw: string | null | undefined) {
+  return (raw ?? "").replace(/\s+/g, "").toUpperCase();
+}
 
 /** Nutrition is stored only when at least one value was entered. */
 export function normalizeNutrition(n: ProductData["nutrition"]) {

@@ -7,7 +7,8 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // camera=(self): the admin barcode scanner uses the camera; third-party frames still can't.
+  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
 ];
 
 const nextConfig: NextConfig = {

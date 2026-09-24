@@ -65,6 +65,21 @@ describe("product creation input", () => {
     expect(productInputSchema.safeParse({ ...valid, slug: "Bad Slug!" }).success).toBe(false);
   });
 
+  it("normalizes barcodes and rejects duplicates inside one product", () => {
+    const r = productInputSchema.parse({ ...valid, variants: [{ ...valid.variants[0], barcode: " 4820 0000 12345 " }] });
+    expect(r.variants[0].barcode).toBe("4820000012345");
+    expect(productInputSchema.parse(valid).variants[0].barcode).toBeNull();
+    const dup = productInputSchema.safeParse({
+      ...valid,
+      variants: [
+        { ...valid.variants[0], barcode: "123" },
+        { ...valid.variants[0], sku: "SKU-2", barcode: "123" },
+      ],
+    });
+    expect(dup.success).toBe(false);
+    expect(productInputSchema.safeParse({ ...valid, variants: [{ ...valid.variants[0], barcode: "12<script>" }] }).success).toBe(false);
+  });
+
   it("cleans tags", () => {
     const r = productInputSchema.parse({ ...valid, tags: "Sweet, spicy ,,sweet, <script>" });
     expect(r.tags).toEqual(["sweet", "spicy"]);

@@ -195,6 +195,8 @@ model ProductVariant {
   productId      String
   product        Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku            String     @unique
+  /// Barcode printed on the package (EAN-13 / UPC / Code128…). Used by the admin scanner.
+  barcode        String?    @unique
   /// Localized label, e.g. { uk: "1 шт", en: "Single" }
   name           Json
   price          Int

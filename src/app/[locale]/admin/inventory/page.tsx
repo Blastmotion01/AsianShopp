@@ -10,7 +10,7 @@ import { StockEditor } from "@/features/admin/inventory/stock-row";
 import { ReceiveStockDialog } from "@/features/admin/inventory/receive-dialog";
 import { INITIAL_RECEIPT_NOTE, markupPercent } from "@/features/admin/inventory/costing";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ScanBarcode } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/config/site";
@@ -26,7 +26,7 @@ export default async function AdminInventoryPage({ params, searchParams }: { par
 
   const where: Prisma.ProductVariantWhereInput = {
     ...(q
-      ? { OR: [{ sku: { contains: q, mode: "insensitive" } }, { product: { translations: { some: { name: { contains: q, mode: "insensitive" } } } } }] }
+      ? { OR: [{ sku: { contains: q, mode: "insensitive" } }, { barcode: { contains: q.replace(/\s+/g, "").toUpperCase() } }, { product: { translations: { some: { name: { contains: q, mode: "insensitive" } } } } }] }
       : {}),
     ...(sp.status === "out" ? { inventory: { quantity: { lte: 0 } } } : {}),
     ...(sp.status === "low" ? { inventory: { quantity: { gt: 0, lte: 5 } } } : {}),
@@ -70,11 +70,18 @@ export default async function AdminInventoryPage({ params, searchParams }: { par
         title={t("title")}
         description={t("pageHint")}
         actions={
-          <Button asChild variant="accent">
-            <Link href="/admin/products/new">
-              <Plus aria-hidden="true" /> {t("newProduct")}
-            </Link>
-          </Button>
+          <>
+            <Button asChild variant="outline">
+              <Link href="/admin/scan">
+                <ScanBarcode aria-hidden="true" /> {t("scanner")}
+              </Link>
+            </Button>
+            <Button asChild variant="accent">
+              <Link href="/admin/products/new">
+                <Plus aria-hidden="true" /> {t("newProduct")}
+              </Link>
+            </Button>
+          </>
         }
       />
 

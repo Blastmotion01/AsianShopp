@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Plus, Trash2, Upload, Star, ArrowLeft, Save } from "lucide-react";
+import { Plus, Trash2, Upload, Star, ArrowLeft, Save, ScanBarcode } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { BarcodeScanner } from "@/features/admin/scan/barcode-scanner";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/input";
@@ -38,6 +40,8 @@ export function ProductForm({
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [pending, start] = React.useTransition();
   const [uploading, setUploading] = React.useState(false);
+  /** index of the variant whose barcode is being scanned, or null */
+  const [scanFor, setScanFor] = React.useState<number | null>(null);
 
   const err = (key: string) => {
     const c = errors[key];
@@ -152,6 +156,27 @@ export function ProductForm({
                   <Field label={t("sku")} htmlFor={`v-sku-${i}`} error={err(`variants.${i}.sku`)}>
                     <Input id={`v-sku-${i}`} value={v.sku} onChange={(e) => setVariant(i, { sku: e.target.value.toUpperCase() })} className="h-10 font-mono text-sm" />
                   </Field>
+                  <Field label={t("barcode")} htmlFor={`v-bc-${i}`} error={err(`variants.${i}.barcode`)}>
+                    <div className="flex gap-1.5">
+                      <Input
+                        id={`v-bc-${i}`}
+                        inputMode="numeric"
+                        value={v.barcode}
+                        onChange={(e) => setVariant(i, { barcode: e.target.value })}
+                        className="h-10 min-w-0 font-mono text-sm"
+                        maxLength={64}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setScanFor(i)}
+                        className="grid size-10 shrink-0 place-items-center rounded-md border-2 border-line hover:border-ink"
+                        aria-label={t("scanBarcode")}
+                        title={t("scanBarcode")}
+                      >
+                        <ScanBarcode className="size-4" />
+                      </button>
+                    </div>
+                  </Field>
                   <Field label={t("variantName")} htmlFor={`v-uk-${i}`} error={err(`variants.${i}.nameUk`)}>
                     <Input id={`v-uk-${i}`} value={v.nameUk} onChange={(e) => setVariant(i, { nameUk: e.target.value })} className="h-10" />
                   </Field>
@@ -202,7 +227,7 @@ export function ProductForm({
               variant="soft"
               size="sm"
               className="mt-3"
-              onClick={() => patch({ variants: [...s.variants, { sku: "", nameUk: "", nameRu: "", nameEn: "", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }] })}
+              onClick={() => patch({ variants: [...s.variants, { sku: "", barcode: "", nameUk: "", nameRu: "", nameEn: "", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }] })}
             >
               <Plus aria-hidden="true" /> {t("addVariant")}
             </Button>
@@ -334,6 +359,20 @@ export function ProductForm({
           </Button>
         </div>
       </div>
+
+      <Dialog open={scanFor !== null} onOpenChange={(o) => !o && setScanFor(null)}>
+        <DialogContent closeLabel={tc("close")} aria-describedby={undefined}>
+          <DialogTitle className="mb-4 font-display text-xl font-bold">{t("scanBarcode")}</DialogTitle>
+          {scanFor !== null && (
+            <BarcodeScanner
+              onDetected={(code) => {
+                setVariant(scanFor, { barcode: code });
+                setScanFor(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

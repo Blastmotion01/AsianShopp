@@ -42,6 +42,7 @@ export default async function AdminProductsPage({
             { slug: { contains: q.toLowerCase() } },
             { translations: { some: { name: { contains: q, mode: "insensitive" } } } },
             { variants: { some: { sku: { contains: q, mode: "insensitive" } } } },
+            { variants: { some: { barcode: { contains: q.replace(/\s+/g, "").toUpperCase() } } } },
             { brand: { name: { contains: q, mode: "insensitive" } } },
           ],
         }
