@@ -170,6 +170,27 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     expect((await db.order.findUniqueOrThrow({ where: { id: res.orderId } })).paymentStatus).toBe("PAID");
   });
 
+  it("goods receipt adds stock, recalculates weighted-average cost and is snapshotted on sale", async () => {
+    const { receiveStock } = await import("@/features/admin/inventory/service");
+    await db.productVariant.update({ where: { id: variantId }, data: { costPrice: 6000 } });
+    await db.inventory.update({ where: { variantId }, data: { quantity: 10 } });
+
+    const r = await receiveStock({ variantId, quantity: 10, unitCost: 9000, note: "test", userName: "vitest" });
+    expect(r).toMatchObject({ stockBefore: 10, stockAfter: 20, costBefore: 6000, costAfter: 7500 });
+    expect((await db.productVariant.findUniqueOrThrow({ where: { id: variantId } })).costPrice).toBe(7500);
+    expect((await db.inventory.findUniqueOrThrow({ where: { variantId } })).quantity).toBe(20);
+
+    // a sale after the receipt stores the new average cost in the order line
+    jar.clear();
+    await cart.addToCart(variantId, 1, "uk");
+    const res = await orders.createOrder(
+      checkoutSchema.parse({ firstName: "Cost", lastName: "Check", phone: "0671234567", email: `${RUN}-cost@example.com`, city: "Дніпро", deliveryMethod: "PICKUP_DNIPRO", paymentMethod: "CASH_ON_DELIVERY" }),
+      "uk",
+    );
+    const item = await db.orderItem.findFirstOrThrow({ where: { orderId: res.orderId } });
+    expect(item.unitCost).toBe(7500);
+  });
+
   it("admin authorization: anonymous and customers are rejected server-side", async () => {
     jar.clear();
     await expect(requirePermission("products:write")).rejects.toMatchObject({ code: "unauthorized" });

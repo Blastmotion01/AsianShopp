@@ -208,8 +208,29 @@ model ProductVariant {
   inventory      Inventory?
   cartItems      CartItem[]
   orderItems     OrderItem[]
+  stockReceipts  StockReceipt[]
 
   @@index([productId])
+}
+
+/// Goods received into stock. Each receipt updates the variant's weighted-average cost.
+model StockReceipt {
+  id          String         @id @default(cuid())
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity    Int
+  /// Purchase price per unit for this delivery (minor units)
+  unitCost    Int
+  stockBefore Int
+  stockAfter  Int
+  costBefore  Int?
+  costAfter   Int
+  note        String?
+  userName    String
+  createdAt   DateTime       @default(now())
+
+  @@index([variantId, createdAt])
+  @@index([createdAt])
 }
 
 model Inventory {
