@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { slugify } from "@/lib/utils";
 import { toMinor } from "@/lib/money";
+import { INITIAL_RECEIPT_NOTE } from "@/features/admin/inventory/costing";
 import { normalizeNutrition, type ProductData } from "./schema";
 
 async function uniqueSlug(base: string, excludeId?: string) {
@@ -19,8 +20,12 @@ async function uniqueSlug(base: string, excludeId?: string) {
 
 const L = (uk: string, ru: string, en: string) => ({ uk, ru: ru || "", en: en || "" });
 
-/** Create or update a product with translations, variants, inventory and images in one transaction. */
-export async function saveProduct(data: ProductData) {
+/**
+ * Create or update a product with translations, variants, inventory and images in one transaction.
+ * Newly created variants with stock and a known cost get an opening StockReceipt, so the
+ * warehouse history starts complete. `actorName` is recorded as who entered it.
+ */
+export async function saveProduct(data: ProductData, actorName = "Admin") {
   const existing = data.id ? await db.product.findUnique({ where: { id: data.id }, include: { variants: true } }) : null;
   if (data.id && !existing) throw new AppError("not_found", 404);
 
@@ -120,11 +125,26 @@ export async function saveProduct(data: ProductData) {
     await tx.productVariant.deleteMany({ where: { productId: product.id, id: { notIn: keepIds } } });
     for (const v of variantRows) {
       const payload = { sku: v.sku, name: v.name, price: v.price, compareAtPrice: v.compareAtPrice, costPrice: v.costPrice, weightGrams: v.weightGrams, isDefault: v.isDefault, sortOrder: v.sortOrder, isActive: true };
-      const variant =
-        v.id && ownIds.has(v.id)
-          ? await tx.productVariant.update({ where: { id: v.id }, data: payload })
-          : await tx.productVariant.create({ data: { ...payload, productId: product.id } });
+      const isNew = !(v.id && ownIds.has(v.id));
+      const variant = isNew
+        ? await tx.productVariant.create({ data: { ...payload, productId: product.id } })
+        : await tx.productVariant.update({ where: { id: v.id }, data: payload });
       await tx.inventory.upsert({ where: { variantId: variant.id }, update: { quantity: v.stock }, create: { variantId: variant.id, quantity: v.stock } });
+      if (isNew && v.stock > 0 && v.costPrice !== null) {
+        await tx.stockReceipt.create({
+          data: {
+            variantId: variant.id,
+            quantity: v.stock,
+            unitCost: v.costPrice,
+            stockBefore: 0,
+            stockAfter: v.stock,
+            costBefore: null,
+            costAfter: v.costPrice,
+            note: INITIAL_RECEIPT_NOTE,
+            userName: actorName,
+          },
+        });
+      }
     }
     return product;
   });

@@ -612,7 +612,9 @@
       "protein": "Protein, g",
       "salt": "Salt, g",
       "costPrice": "Cost price, ₴",
-      "costHint": "Purchase price per unit (weighted average). Updated automatically by “Receive” in Inventory"
+      "costHint": "Purchase price per unit (weighted average). Updated automatically by “Receive” in Inventory",
+      "stockInitial": "Opening stock",
+      "stockInitialHint": "With a cost price it is recorded as the first receipt. Later deliveries — via “Receive” in Inventory"
     },
     "inventory": {
       "title": "Inventory",
@@ -658,7 +660,9 @@
       "pcs": "pcs",
       "avgHint": "New cost is a weighted average: (stock × old cost + received × new price) / total quantity.",
       "receiveSubmit": "Receive",
-      "received": "Received. Stock {stock} pcs, cost {cost}"
+      "received": "Received. Stock {stock} pcs, cost {cost}",
+      "newProduct": "New product",
+      "initialStock": "Opening stock"
     },
     "orders": {
       "title": "Orders",

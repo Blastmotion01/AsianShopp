@@ -174,7 +174,13 @@ export function ProductForm({
                     <Input id={`v-w-${i}`} inputMode="numeric" value={v.weightGrams} onChange={(e) => setVariant(i, { weightGrams: e.target.value })} className="h-10" />
                   </Field>
                   <div className="flex items-end gap-2">
-                    <Field label={t("stock")} htmlFor={`v-st-${i}`} error={err(`variants.${i}.stock`)} className="flex-1">
+                    <Field
+                      label={v.id ? t("stock") : t("stockInitial")}
+                      htmlFor={`v-st-${i}`}
+                      error={err(`variants.${i}.stock`)}
+                      hint={v.id ? undefined : t("stockInitialHint")}
+                      className="flex-1"
+                    >
                       <Input id={`v-st-${i}`} inputMode="numeric" value={v.stock} onChange={(e) => setVariant(i, { stock: e.target.value })} className="h-10" />
                     </Field>
                     {s.variants.length > 1 && (

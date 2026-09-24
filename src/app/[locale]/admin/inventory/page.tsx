@@ -8,7 +8,9 @@ import { AdminPageHeader } from "@/features/admin/components/page-header";
 import { ListToolbar } from "@/features/admin/components/list-toolbar";
 import { StockEditor } from "@/features/admin/inventory/stock-row";
 import { ReceiveStockDialog } from "@/features/admin/inventory/receive-dialog";
-import { markupPercent } from "@/features/admin/inventory/costing";
+import { INITIAL_RECEIPT_NOTE, markupPercent } from "@/features/admin/inventory/costing";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/config/site";
@@ -64,7 +66,17 @@ export default async function AdminInventoryPage({ params, searchParams }: { par
 
   return (
     <div>
-      <AdminPageHeader title={t("title")} description={t("pageHint")} />
+      <AdminPageHeader
+        title={t("title")}
+        description={t("pageHint")}
+        actions={
+          <Button asChild variant="accent">
+            <Link href="/admin/products/new">
+              <Plus aria-hidden="true" /> {t("newProduct")}
+            </Link>
+          </Button>
+        }
+      />
 
       <ul className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
@@ -191,7 +203,7 @@ export default async function AdminInventoryPage({ params, searchParams }: { par
                       {r.costBefore !== null ? formatPrice(r.costBefore, locale) : "—"} → <b>{formatPrice(r.costAfter, locale)}</b>
                     </td>
                     <td className="px-2 py-3">{r.userName}</td>
-                    <td className="px-4 py-3 text-muted">{r.note ?? ""}</td>
+                    <td className="px-4 py-3 text-muted">{r.note === INITIAL_RECEIPT_NOTE ? t("initialStock") : (r.note ?? "")}</td>
                   </tr>
                 ))}
               </tbody>

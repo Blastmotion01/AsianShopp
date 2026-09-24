@@ -1,3 +1,6 @@
+/** Marker stored in StockReceipt.note for the opening stock of a newly created variant (translated in the UI). */
+export const INITIAL_RECEIPT_NOTE = "__initial__";
+
 /**
  * Weighted-average cost after receiving goods (all amounts in minor units).
  *   (stock on hand × current cost + received qty × purchase price) / (stock + received)

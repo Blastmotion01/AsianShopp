@@ -191,6 +191,27 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     expect(item.unitCost).toBe(7500);
   });
 
+  it("a new product with stock and cost gets an opening receipt; editing it does not add another", async () => {
+    const category = await db.category.findFirstOrThrow({ where: { slug: "drinks" } });
+    const input = {
+      slug: `${RUN}-new-drink`,
+      translations: { uk: { name: `Новий напій ${RUN}`, shortDescription: "Тест" }, ru: {}, en: {} },
+      categoryId: category.id,
+      variants: [{ sku: `${RUN}-NEW-1`.toUpperCase(), nameUk: "1 шт", price: "80", costPrice: "45,50", stock: "24" }],
+    };
+    const p = await saveProduct(productInputSchema.parse(input), "vitest");
+    const v = await db.productVariant.findFirstOrThrow({ where: { productId: p.id } });
+    const receipts = await db.stockReceipt.findMany({ where: { variantId: v.id } });
+    expect(receipts).toHaveLength(1);
+    expect(receipts[0]).toMatchObject({ quantity: 24, unitCost: 4550, stockBefore: 0, stockAfter: 24, costAfter: 4550, userName: "vitest" });
+    expect(v.costPrice).toBe(4550);
+
+    // re-saving the same product (existing variant) must not create a second opening receipt
+    await saveProduct(productInputSchema.parse({ ...input, id: p.id, variants: [{ ...input.variants[0], id: v.id }] }), "vitest");
+    expect(await db.stockReceipt.count({ where: { variantId: v.id } })).toBe(1);
+    await deleteProducts([p.id]);
+  });
+
   it("admin authorization: anonymous and customers are rejected server-side", async () => {
     jar.clear();
     await expect(requirePermission("products:write")).rejects.toMatchObject({ code: "unauthorized" });

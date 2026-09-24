@@ -16,7 +16,7 @@ export async function saveProductAction(input: ProductInput): Promise<ActionResu
     const parsed = productInputSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: "validation", fieldErrors: zodFieldErrors(parsed.error.issues) };
     const before = parsed.data.id ? await db.product.findUnique({ where: { id: parsed.data.id }, select: { price: true, isActive: true } }) : null;
-    const product = await saveProduct(parsed.data);
+    const product = await saveProduct(parsed.data, [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email);
     await logAdminAction(user, parsed.data.id ? "product.update" : "product.create", "Product", product.id, {
       slug: product.slug,
       ...(before && before.price !== product.price ? { priceFrom: before.price, priceTo: product.price } : {}),
