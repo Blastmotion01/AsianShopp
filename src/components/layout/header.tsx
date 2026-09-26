@@ -147,7 +147,6 @@ export function Header({
             >
               <Search className="size-4" aria-hidden="true" />
               <span className="w-28 text-left">{t("catalog")}…</span>
-              <kbd className="rounded-md bg-ink/5 px-1.5 py-0.5 text-[0.7rem] font-bold">Ctrl K</kbd>
             </button>
             <button
               type="button"
