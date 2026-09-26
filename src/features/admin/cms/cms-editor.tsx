@@ -10,10 +10,10 @@ import { Checkbox, Field, Input, Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { reorderBlocksAction, saveBlockAction, saveCategoryHomeAction, saveSettingsAction } from "./actions";
 
-type L3 = { uk: string; ru: string; en: string };
+type L3 = { uk: string; en: string };
 export type CmsBlock = { key: string; type: "hero" | "section" | "banner" | "announcement"; data: Record<string, unknown>; isActive: boolean };
 
-/** Which fields each block type exposes; localized ones get uk/ru/en inputs. */
+/** Which fields each block type exposes; localized ones get uk/en inputs. */
 const FIELDS: Record<CmsBlock["type"], { name: string; localized: boolean; long?: boolean }[]> = {
   hero: [
     { name: "eyebrow", localized: true },
@@ -151,7 +151,7 @@ function BlockForm({ block, onSaved }: { block: CmsBlock; onSaved: (b: CmsBlock)
     <form onSubmit={save} className="space-y-4 border-t-2 border-line p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1.5" role="tablist">
-          {(["uk", "ru", "en"] as const).map((l) => (
+          {(["uk", "en"] as const).map((l) => (
             <button key={l} type="button" role="tab" aria-selected={lang === l} onClick={() => setLang(l)} className={cn("rounded-full border-2 px-3 py-1 text-xs font-bold", lang === l ? "border-ink bg-ink text-white" : "border-line")}>
               {l.toUpperCase()}
             </button>
@@ -166,7 +166,7 @@ function BlockForm({ block, onSaved }: { block: CmsBlock; onSaved: (b: CmsBlock)
         const errKey = f.localized ? `${f.name}.${lang}` : f.name;
         const value = f.localized ? ((data[f.name] as L3 | undefined)?.[lang] ?? "") : String(data[f.name] ?? "");
         const onChange = (v: string) =>
-          setData((d) => (f.localized ? { ...d, [f.name]: { ...((d[f.name] as L3) ?? { uk: "", ru: "", en: "" }), [lang]: v } } : { ...d, [f.name]: v }));
+          setData((d) => (f.localized ? { ...d, [f.name]: { ...((d[f.name] as L3) ?? { uk: "", en: "" }), [lang]: v } } : { ...d, [f.name]: v }));
         return (
           <Field key={f.name} label={`${t(`fields.${f.name}`)}${f.localized ? ` (${lang.toUpperCase()})` : ""}`} htmlFor={id} error={errors[errKey] ? (te.has(errors[errKey]) ? te(errors[errKey]) : errors[errKey]) : undefined}>
             {f.long ? (

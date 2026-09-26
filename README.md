@@ -1,7 +1,7 @@
 # AsiaShop
 
 Online store for imported sweets, drinks, snacks and food from 🇰🇷 Korea, 🇯🇵 Japan, 🇨🇳 China and 🇺🇸 the USA.
-Based in Dnipro, Ukraine · currency UAH (₴) · languages **uk** (default), **ru**, **en**.
+Based in Dnipro, Ukraine · currency UAH (₴) · languages **uk** (default), **en**.
 
 It's a full-stack Next.js app: storefront, cart, checkout, customer accounts and an admin panel,
 all backed by PostgreSQL.
@@ -85,7 +85,7 @@ The seed creates:
 - roles: `CUSTOMER`, `ADMIN`, plus example staff roles `MANAGER`, `CONTENT_MANAGER`, `WAREHOUSE`
 - the admin from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 - 4 countries and 9 categories, including Mystery Box
-- **30 products** (Korea 8, Japan 8, China 7, USA 7) and **5 Mystery Boxes**, with uk/ru/en content, variants, stock and nutrition
+- **30 products** (Korea 8, Japan 8, China 7, USA 7) and **5 Mystery Boxes**, with uk/en content, variants, stock and nutrition
 - illustrated SVG placeholders instead of photos. They're clearly marked "Illustration" on the site; replace them with real photos in the admin
 - sample reviews, promo codes `WELCOME10` (−10%, min 300 ₴), `DNIPRO50` (−50 ₴, min 500 ₴), `SPICY15`
 - CMS homepage blocks and store settings
@@ -168,7 +168,7 @@ prisma/
 scripts/
   local-db.ts            embedded PostgreSQL for dev
   create-admin.ts        create/promote admin
-messages/{uk,ru,en}.json all UI strings (key parity is tested)
+messages/{uk,en}.json all UI strings (key parity is tested)
 src/
   app/
     [locale]/(shop)/     storefront routes (header/footer layout)
@@ -196,17 +196,17 @@ Database access stays in services (`features/*/service.ts`, `queries.ts`). UI co
 ## Database schema
 
 `Role` (permissions[]) → `User` → `Session`, `PasswordResetToken`, `Address`, `Cart`, `Wishlist`, `Review`, `Order`, `AdminLog`
-`Country`, `Category` (tree), `Brand` → `Product` → `ProductTranslation` (uk/ru/en), `ProductImage`, `ProductVariant` → `Inventory`
+`Country`, `Category` (tree), `Brand` → `Product` → `ProductTranslation` (uk/en), `ProductImage`, `ProductVariant` → `Inventory`
 `Cart` → `CartItem` (per variant) · `Wishlist` → `WishlistItem` (a cart or wishlist belongs to a user **or** a signed guest id)
 `Order` → `OrderItem` (name/price/image snapshots), `OrderEvent` (status history), `Payment` (provider transactions)
 `PromoCode` → `PromoCodeUsage` (one per order) · `ContentBlock` (CMS) · `Setting` (store settings)
 
 Money is stored as integer kopiykas (`12900` = 129 ₴). Localized reference data (`Category.name`, `Country.name`, CMS)
-uses `{uk, ru, en}` JSON; product content uses the `ProductTranslation` table so it can be searched.
+uses `{uk, en}` JSON; product content uses the `ProductTranslation` table so it can be searched.
 
 ## Routes
 
-Storefront (the uk locale has no prefix, e.g. `/products`; others do: `/en/products`, `/ru/products`):
+Storefront (the uk locale has no prefix, e.g. `/products`; English has one: `/en/products`; old `/ru/...` links redirect to the Ukrainian page):
 
 | Route | |
 |---|---|

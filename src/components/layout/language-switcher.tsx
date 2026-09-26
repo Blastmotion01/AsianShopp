@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 const LABELS: Record<Locale, { short: string; full: string }> = {
   uk: { short: "UA", full: "Українська" },
-  ru: { short: "RU", full: "Русский" },
   en: { short: "EN", full: "English" },
 };
 

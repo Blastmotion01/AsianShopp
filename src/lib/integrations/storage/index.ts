@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { env } from "@/lib/env";
 import { randomToken } from "@/lib/auth/tokens";
+import { AppError } from "@/lib/errors";
 
 /**
  * File storage abstraction: local disk (dev / VPS) or Vercel Blob (Vercel).
@@ -85,6 +86,8 @@ export function getStorage(): StorageProvider {
     return new VercelBlobStorageProvider();
   }
   if (id !== "local") throw new Error(`Storage provider "${id}" is not implemented yet`);
+  // Vercel's disk is read-only: without a connected Blob store uploads can't be saved.
+  if (process.env.VERCEL) throw new AppError("storage_not_configured", 503);
   return new LocalStorageProvider();
 }
 

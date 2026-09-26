@@ -1,10 +1,10 @@
 /** Shared (server + client) editor state for the admin product form. */
-type Locale3 = "uk" | "ru" | "en";
-type VariantState = { id?: string; sku: string; barcode: string; nameUk: string; nameRu: string; nameEn: string; price: string; compareAtPrice: string; costPrice: string; weightGrams: string; stock: string };
+type FormLocale = "uk" | "en";
+type VariantState = { id?: string; sku: string; barcode: string; nameUk: string; nameEn: string; price: string; compareAtPrice: string; costPrice: string; weightGrams: string; stock: string };
 export type ProductFormState = {
   id?: string;
   slug: string;
-  translations: Record<Locale3, { name: string; shortDescription: string; description: string; ingredients: string; allergens: string }>;
+  translations: Record<FormLocale, { name: string; shortDescription: string; description: string; ingredients: string; allergens: string }>;
   categoryId: string;
   countryId: string;
   brandName: string;
@@ -19,14 +19,14 @@ export type ProductFormState = {
   images: { url: string; alt: string }[];
   variants: VariantState[];
   nutrition: Record<"energyKcal" | "fat" | "carbs" | "sugar" | "protein" | "salt", string>;
-  seoTitle: Record<Locale3, string>;
-  seoDescription: Record<Locale3, string>;
+  seoTitle: Record<FormLocale, string>;
+  seoDescription: Record<FormLocale, string>;
 };
 
 const emptyTr = { name: "", shortDescription: "", description: "", ingredients: "", allergens: "" };
 export const EMPTY_PRODUCT: ProductFormState = {
   slug: "",
-  translations: { uk: { ...emptyTr }, ru: { ...emptyTr }, en: { ...emptyTr } },
+  translations: { uk: { ...emptyTr }, en: { ...emptyTr } },
   categoryId: "",
   countryId: "",
   brandName: "",
@@ -39,8 +39,8 @@ export const EMPTY_PRODUCT: ProductFormState = {
   isLimited: false,
   isActive: true,
   images: [],
-  variants: [{ sku: "", barcode: "", nameUk: "1 шт", nameRu: "1 шт", nameEn: "Single", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }],
+  variants: [{ sku: "", barcode: "", nameUk: "1 шт", nameEn: "Single", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }],
   nutrition: { energyKcal: "", fat: "", carbs: "", sugar: "", protein: "", salt: "" },
-  seoTitle: { uk: "", ru: "", en: "" },
-  seoDescription: { uk: "", ru: "", en: "" },
+  seoTitle: { uk: "", en: "" },
+  seoDescription: { uk: "", en: "" },
 };

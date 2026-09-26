@@ -13,7 +13,7 @@ import type { Locale } from "@/config/site";
 
 const str = (n: number | null | undefined) => (n === null || n === undefined ? "" : String(n));
 const uah = (minor: number | null | undefined) => (minor === null || minor === undefined ? "" : String(minor / 100));
-const loc = (v: unknown, l: "uk" | "ru" | "en") => (v && typeof v === "object" ? String((v as Record<string, string>)[l] ?? "") : "");
+const loc = (v: unknown, l: "uk" | "en") => (v && typeof v === "object" ? String((v as Record<string, string>)[l] ?? "") : "");
 
 /** /admin/products/new and /admin/products/[id] share this page. */
 export default async function AdminProductEditPage({
@@ -52,7 +52,7 @@ export default async function AdminProductEditPage({
       include: { translations: true, images: { orderBy: { sortOrder: "asc" } }, variants: { orderBy: { sortOrder: "asc" }, include: { inventory: true } }, brand: true },
     });
     if (!p) notFound();
-    const tr = (l: "uk" | "ru" | "en") => {
+    const tr = (l: "uk" | "en") => {
       const x = p.translations.find((r) => r.locale === l);
       return { name: x?.name ?? "", shortDescription: x?.shortDescription ?? "", description: x?.description ?? "", ingredients: x?.ingredients ?? "", allergens: x?.allergens ?? "" };
     };
@@ -60,7 +60,7 @@ export default async function AdminProductEditPage({
     initial = {
       id: p.id,
       slug: p.slug,
-      translations: { uk: tr("uk"), ru: tr("ru"), en: tr("en") },
+      translations: { uk: tr("uk"), en: tr("en") },
       categoryId: p.categoryId,
       countryId: p.countryId ?? "",
       brandName: p.brand?.name ?? "",
@@ -78,7 +78,6 @@ export default async function AdminProductEditPage({
         sku: v.sku,
         barcode: v.barcode ?? "",
         nameUk: loc(v.name, "uk"),
-        nameRu: loc(v.name, "ru"),
         nameEn: loc(v.name, "en"),
         price: uah(v.price),
         compareAtPrice: uah(v.compareAtPrice),
@@ -87,8 +86,8 @@ export default async function AdminProductEditPage({
         stock: str(v.inventory?.quantity ?? 0),
       })),
       nutrition: { energyKcal: str(n.energyKcal), fat: str(n.fat), carbs: str(n.carbs), sugar: str(n.sugar), protein: str(n.protein), salt: str(n.salt) },
-      seoTitle: { uk: loc(p.seoTitle, "uk"), ru: loc(p.seoTitle, "ru"), en: loc(p.seoTitle, "en") },
-      seoDescription: { uk: loc(p.seoDescription, "uk"), ru: loc(p.seoDescription, "ru"), en: loc(p.seoDescription, "en") },
+      seoTitle: { uk: loc(p.seoTitle, "uk"), en: loc(p.seoTitle, "en") },
+      seoDescription: { uk: loc(p.seoDescription, "uk"), en: loc(p.seoDescription, "en") },
     };
   }
 

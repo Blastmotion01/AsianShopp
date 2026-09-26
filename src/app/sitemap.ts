@@ -6,7 +6,7 @@ import { getAppUrl } from "@/lib/app-url";
 // Rendered on request (reads the database), so the build doesn't depend on DB access.
 export const dynamic = "force-dynamic";
 
-const LOCALE_PREFIX = { uk: "", ru: "/ru", en: "/en" } as const;
+const LOCALE_PREFIX = { uk: "", en: "/en" } as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getAppUrl();

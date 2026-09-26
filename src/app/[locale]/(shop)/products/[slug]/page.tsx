@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: {
       canonical: path,
-      languages: { uk: `/products/${p.slug}`, ru: `/ru/products/${p.slug}`, en: `/en/products/${p.slug}` },
+      languages: { uk: `/products/${p.slug}`, en: `/en/products/${p.slug}` },
     },
     openGraph: { title, description, url: path, type: "website" },
   };

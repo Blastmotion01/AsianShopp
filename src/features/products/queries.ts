@@ -241,7 +241,7 @@ export async function getPopularSearches(locale: Locale) {
     select: { brand: { select: { name: true } } },
   });
   const brands = [...new Set(rows.map((r) => r.brand?.name).filter(Boolean))] as string[];
-  const extra: Record<Locale, string[]> = { uk: ["рамен", "матча", "гостре"], ru: ["рамен", "матча", "острое"], en: ["ramen", "matcha", "spicy"] };
+  const extra: Record<Locale, string[]> = { uk: ["рамен", "матча", "гостре"], en: ["ramen", "matcha", "spicy"] };
   return [...extra[locale], ...brands].slice(0, 7);
 }
 

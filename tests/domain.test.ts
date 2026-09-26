@@ -38,7 +38,7 @@ describe("orders", () => {
 
 describe("product creation input", () => {
   const valid = {
-    translations: { uk: { name: "Тест", shortDescription: "Опис" }, ru: {}, en: {} },
+    translations: { uk: { name: "Тест", shortDescription: "Опис" }, en: {} },
     categoryId: "cat1",
     variants: [{ sku: "SKU-1", nameUk: "1 шт", price: "99.50", stock: "10" }],
   };
@@ -54,7 +54,7 @@ describe("product creation input", () => {
   });
 
   it("requires a Ukrainian name, a category and at least one variant", () => {
-    expect(productInputSchema.safeParse({ ...valid, translations: { uk: { name: "", shortDescription: "x" }, ru: {}, en: {} } }).success).toBe(false);
+    expect(productInputSchema.safeParse({ ...valid, translations: { uk: { name: "", shortDescription: "x" }, en: {} } }).success).toBe(false);
     expect(productInputSchema.safeParse({ ...valid, categoryId: "" }).success).toBe(false);
     expect(productInputSchema.safeParse({ ...valid, variants: [] }).success).toBe(false);
   });

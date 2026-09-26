@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [...privatePaths, ...privatePaths.flatMap((p) => [`/ru${p}`, `/en${p}`])],
+        disallow: [...privatePaths, ...privatePaths.map((p) => `/en${p}`)],
       },
     ],
     sitemap: `${base}/sitemap.xml`,

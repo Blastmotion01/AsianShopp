@@ -52,7 +52,7 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     const product = await saveProduct(
       productInputSchema.parse({
         slug: `${RUN}-snack`,
-        translations: { uk: { name: `Тест ${RUN}`, shortDescription: "Тестовий товар" }, ru: {}, en: { name: `Test ${RUN}` } },
+        translations: { uk: { name: `Тест ${RUN}`, shortDescription: "Тестовий товар" }, en: { name: `Test ${RUN}` } },
         categoryId: category.id,
         brandName: "Test Brand",
         tags: "snack, salty",
@@ -91,7 +91,7 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     await expect(
       saveProduct(
         productInputSchema.parse({
-          translations: { uk: { name: "Дубль", shortDescription: "x" }, ru: {}, en: {} },
+          translations: { uk: { name: "Дубль", shortDescription: "x" }, en: {} },
           categoryId: category.id,
           variants: [{ sku: `${RUN}-SKU`.toUpperCase(), nameUk: "1", price: "1", stock: "0" }],
         }),
@@ -195,7 +195,7 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     const category = await db.category.findFirstOrThrow({ where: { slug: "drinks" } });
     const input = {
       slug: `${RUN}-new-drink`,
-      translations: { uk: { name: `Новий напій ${RUN}`, shortDescription: "Тест" }, ru: {}, en: {} },
+      translations: { uk: { name: `Новий напій ${RUN}`, shortDescription: "Тест" }, en: {} },
       categoryId: category.id,
       variants: [{ sku: `${RUN}-NEW-1`.toUpperCase(), nameUk: "1 шт", price: "80", costPrice: "45,50", stock: "24" }],
     };
@@ -218,7 +218,7 @@ describe.skipIf(!hasDb)("integration: products → cart → orders → admin", a
     const code = `99${Date.now().toString().slice(-11)}`; // 13 digits, unique per run
     const base = {
       slug: `${RUN}-scan`,
-      translations: { uk: { name: `Скан ${RUN}`, shortDescription: "Тест" }, ru: {}, en: {} },
+      translations: { uk: { name: `Скан ${RUN}`, shortDescription: "Тест" }, en: {} },
       categoryId: category.id,
       variants: [{ sku: `${RUN}-SCAN-1`.toUpperCase(), barcode: code, nameUk: "1 шт", price: "50", stock: "3" }],
     };

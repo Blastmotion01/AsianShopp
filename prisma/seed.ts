@@ -107,7 +107,7 @@ async function seedCatalog() {
     });
 
     const variants = p.variants ?? [
-      { suffix: "1", name: { uk: "1 шт", ru: "1 шт", en: "Single" }, price: p.price, compareAt: p.compareAt, weight: p.weight, stock: p.stock },
+      { suffix: "1", name: { uk: "1 шт", en: "Single" }, price: p.price, compareAt: p.compareAt, weight: p.weight, stock: p.stock },
     ];
 
     await db.product.create({
@@ -130,7 +130,7 @@ async function seedCatalog() {
         // Stagger createdAt so "Newest" sorting is meaningful
         createdAt: new Date(Date.now() - (products.length - idx) * 36e5 * (p.isNew ? 1 : 24)),
         translations: {
-          create: (["uk", "ru", "en"] as const).map((locale) => ({
+          create: (["uk", "en"] as const).map((locale) => ({
             locale,
             name: p.name[locale],
             shortDescription: p.short[locale],

@@ -18,7 +18,7 @@ async function uniqueSlug(base: string, excludeId?: string) {
   throw new AppError("slug_taken");
 }
 
-const L = (uk: string, ru: string, en: string) => ({ uk, ru: ru || "", en: en || "" });
+const L = (uk: string, en: string) => ({ uk, en: en || "" });
 
 /**
  * Create or update a product with translations, variants, inventory and images in one transaction.
@@ -75,7 +75,7 @@ export async function saveProduct(data: ProductData, actorName = "Admin") {
     id: v.id,
     sku: v.sku,
     barcode: v.barcode,
-    name: L(v.nameUk, v.nameRu, v.nameEn),
+    name: L(v.nameUk, v.nameEn),
     price: toMinor(v.price as number),
     compareAtPrice: v.compareAtPrice ? toMinor(v.compareAtPrice) : null,
     costPrice: v.costPrice !== null && v.costPrice !== undefined ? toMinor(v.costPrice) : null,
@@ -114,7 +114,7 @@ export async function saveProduct(data: ProductData, actorName = "Admin") {
 
     await tx.productTranslation.deleteMany({ where: { productId: product.id } });
     await tx.productTranslation.createMany({
-      data: (["uk", "ru", "en"] as const)
+      data: (["uk", "en"] as const)
         .filter((l) => data.translations[l].name)
         .map((locale) => ({
           productId: product.id,

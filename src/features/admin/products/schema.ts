@@ -33,7 +33,6 @@ export const variantInputSchema = z.object({
     .pipe(z.string().max(64, "tooLong").regex(/^[A-Za-z0-9._-]*$/, "invalid"))
     .transform((v) => v || null),
   nameUk: z.string().trim().min(1, "required").max(60, "tooLong"),
-  nameRu: optText(60),
   nameEn: optText(60),
   price: optNum(0.01, 1_000_000).refine((v) => v !== null, "required"),
   compareAtPrice: optNum(0, 1_000_000),
@@ -55,7 +54,6 @@ export const productInputSchema = z
       .default(""),
     translations: z.object({
       uk: translation.extend({ name: z.string().trim().min(1, "required").max(160, "tooLong"), shortDescription: z.string().trim().min(1, "required").max(300, "tooLong") }),
-      ru: translation,
       en: translation,
     }),
     categoryId: z.string().min(1, "required").max(40),
@@ -90,8 +88,8 @@ export const productInputSchema = z
         salt: optNum(0, 100),
       })
       .optional(),
-    seoTitle: z.object({ uk: optText(160), ru: optText(160), en: optText(160) }).default({ uk: "", ru: "", en: "" }),
-    seoDescription: z.object({ uk: optText(300), ru: optText(300), en: optText(300) }).default({ uk: "", ru: "", en: "" }),
+    seoTitle: z.object({ uk: optText(160), en: optText(160) }).default({ uk: "", en: "" }),
+    seoDescription: z.object({ uk: optText(300), en: optText(300) }).default({ uk: "", en: "" }),
   })
   .superRefine((v, ctx) => {
     const skus = v.variants.map((x) => x.sku.toUpperCase());

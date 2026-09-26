@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     applicationName: "AsiaShop",
     openGraph: { siteName: "AsiaShop", type: "website", locale },
     alternates: {
-      languages: { uk: "/", ru: "/ru", en: "/en" },
+      languages: { uk: "/", en: "/en" },
     },
   };
 }

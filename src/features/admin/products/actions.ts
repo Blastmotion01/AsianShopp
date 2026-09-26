@@ -92,7 +92,11 @@ export async function uploadProductImageAction(fd: FormData): Promise<ActionResu
     if (mode !== "none") {
       const countryId = fd.get("countryId");
       const country = typeof countryId === "string" && countryId ? await db.country.findUnique({ where: { id: countryId }, select: { code: true } }) : null;
-      const res = await stylizeProductPhoto(buf, { country: country?.code, mode });
+      // a processing failure must not block the upload — store the original instead
+      const res = await stylizeProductPhoto(buf, { country: country?.code, mode }).catch((err) => {
+        console.error("[photo stylize]", err);
+        return null;
+      });
       if (res) {
         buf = res.image;
         type = "image/webp";

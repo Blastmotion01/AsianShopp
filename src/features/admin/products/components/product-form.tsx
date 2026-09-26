@@ -16,7 +16,7 @@ import { shrinkImage } from "../shrink-image";
 import type { ProductInput } from "../schema";
 import type { ProductFormState } from "../form-state";
 
-type Locale3 = "uk" | "ru" | "en";
+type FormLocale = "uk" | "en";
 const PHOTO_MODES = ["auto", "hull", "box", "plain", "none"] as const;
 type PhotoMode = (typeof PHOTO_MODES)[number];
 type VariantState = ProductFormState["variants"][number];
@@ -39,7 +39,7 @@ export function ProductForm({
   const tc = useTranslations("common");
   const router = useRouter();
   const [s, setS] = React.useState<ProductFormState>(initial);
-  const [lang, setLang] = React.useState<Locale3>("uk");
+  const [lang, setLang] = React.useState<FormLocale>("uk");
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [pending, start] = React.useTransition();
   const [uploading, setUploading] = React.useState(false);
@@ -84,7 +84,7 @@ export function ProductForm({
         setErrors(res.fieldErrors ?? (res.meta?.field ? { [String(res.meta.field)]: res.error } : {}));
         toast.error(te.has(res.error) ? te(res.error) : te("generic"));
         const firstLangErr = Object.keys(res.fieldErrors ?? {}).find((k) => k.startsWith("translations."));
-        if (firstLangErr) setLang(firstLangErr.split(".")[1] as Locale3);
+        if (firstLangErr) setLang(firstLangErr.split(".")[1] as FormLocale);
         return;
       }
       setErrors({});
@@ -109,7 +109,7 @@ export function ProductForm({
           {/* CONTENT */}
           <Card title={t("content", { locale: lang.toUpperCase() })}>
             <div className="mb-4 flex gap-2" role="tablist">
-              {(["uk", "ru", "en"] as const).map((l) => (
+              {(["uk", "en"] as const).map((l) => (
                 <button
                   key={l}
                   type="button"
@@ -190,9 +190,6 @@ export function ProductForm({
                   <Field label={t("variantName")} htmlFor={`v-uk-${i}`} error={err(`variants.${i}.nameUk`)}>
                     <Input id={`v-uk-${i}`} value={v.nameUk} onChange={(e) => setVariant(i, { nameUk: e.target.value })} className="h-10" />
                   </Field>
-                  <Field label={t("variantNameRu")} htmlFor={`v-ru-${i}`}>
-                    <Input id={`v-ru-${i}`} value={v.nameRu} onChange={(e) => setVariant(i, { nameRu: e.target.value })} className="h-10" />
-                  </Field>
                   <Field label={t("variantNameEn")} htmlFor={`v-en-${i}`}>
                     <Input id={`v-en-${i}`} value={v.nameEn} onChange={(e) => setVariant(i, { nameEn: e.target.value })} className="h-10" />
                   </Field>
@@ -237,7 +234,7 @@ export function ProductForm({
               variant="soft"
               size="sm"
               className="mt-3"
-              onClick={() => patch({ variants: [...s.variants, { sku: "", barcode: "", nameUk: "", nameRu: "", nameEn: "", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }] })}
+              onClick={() => patch({ variants: [...s.variants, { sku: "", barcode: "", nameUk: "", nameEn: "", price: "", compareAtPrice: "", costPrice: "", weightGrams: "", stock: "0" }] })}
             >
               <Plus aria-hidden="true" /> {t("addVariant")}
             </Button>

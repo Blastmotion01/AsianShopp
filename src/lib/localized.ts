@@ -18,13 +18,11 @@ export function pickLocalized(value: unknown, locale: Locale): string {
 
 export const localizedSchema = z.object({
   uk: z.string().trim().min(1).max(500),
-  ru: z.string().trim().max(500).optional().default(""),
   en: z.string().trim().max(500).optional().default(""),
 });
 
 export const localizedLongSchema = z.object({
   uk: z.string().trim().max(5000).optional().default(""),
-  ru: z.string().trim().max(5000).optional().default(""),
   en: z.string().trim().max(5000).optional().default(""),
 });
 
