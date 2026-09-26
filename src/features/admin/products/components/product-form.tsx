@@ -70,7 +70,7 @@ export function ProductForm({
       if (res.ok) {
         setS((prev) => ({ ...prev, images: [...prev.images, { url: res.data.url, alt: prev.translations.uk.name }] }));
         if (!res.data.processed) toast.warning(t("photoNotProcessed"));
-      } else toast.error(te.has(res.error) ? te(res.error) : te("generic"));
+      } else toast.error(te.has(res.error) ? te(res.error, { details: String(res.meta?.details ?? "—") }) : te("generic"), { duration: 15000 });
     }
     setUploading(false);
   }

@@ -473,7 +473,7 @@
     "sku_taken": "This SKU is already in use",
     "code_taken": "This promo code already exists",
     "invalid_file": "Unsupported file. JPG, PNG, WEBP, AVIF up to 5 MB",
-    "storage_not_configured": "Photo storage is not connected. In Vercel: Storage → Create → Blob, connect it to the project and redeploy",
+    "storage_not_configured": "Photo storage is not connected. In Vercel: Storage → Create → Blob, connect it to the project and redeploy. Diagnostics: {details}",
     "has_orders": "This product has orders — it can only be deactivated",
     "invalid_transition": "This status change isn’t allowed",
     "notFoundTitle": "Oops, nothing here",

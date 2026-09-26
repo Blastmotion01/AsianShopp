@@ -89,7 +89,17 @@ export function getStorage(): StorageProvider {
   }
   if (id !== "local") throw new Error(`Storage provider "${id}" is not implemented yet`);
   // Vercel's disk is read-only: without a connected Blob store uploads can't be saved.
-  if (process.env.VERCEL) throw new AppError("storage_not_configured", 503);
+  if (process.env.VERCEL) {
+    // Diagnostics for the admin (never the token itself): what the server actually sees.
+    const blobVars = Object.keys(process.env).filter((k) => k.endsWith("READ_WRITE_TOKEN"));
+    const details = [
+      `STORAGE_PROVIDER=${JSON.stringify(process.env.STORAGE_PROVIDER ?? null)}`,
+      `token vars: ${blobVars.map((k) => `${k}(${process.env[k]?.trim() ? "set" : "empty"})`).join(", ") || "none"}`,
+      `env: ${process.env.VERCEL_ENV ?? "?"}`,
+      `commit: ${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "?"}`,
+    ].join("; ");
+    throw new AppError("storage_not_configured", 503, { details });
+  }
   return new LocalStorageProvider();
 }
 
