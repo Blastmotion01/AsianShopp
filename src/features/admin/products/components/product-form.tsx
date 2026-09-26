@@ -12,10 +12,13 @@ import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/input"
 import { ProductImage } from "@/components/product/product-image";
 import { cn } from "@/lib/utils";
 import { saveProductAction, uploadProductImageAction } from "../actions";
+import { shrinkImage } from "../shrink-image";
 import type { ProductInput } from "../schema";
 import type { ProductFormState } from "../form-state";
 
 type Locale3 = "uk" | "ru" | "en";
+const PHOTO_MODES = ["auto", "hull", "box", "plain", "none"] as const;
+type PhotoMode = (typeof PHOTO_MODES)[number];
 type VariantState = ProductFormState["variants"][number];
 
 export function ProductForm({
@@ -40,6 +43,7 @@ export function ProductForm({
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [pending, start] = React.useTransition();
   const [uploading, setUploading] = React.useState(false);
+  const [photoMode, setPhotoMode] = React.useState<PhotoMode>("auto");
   /** index of the variant whose barcode is being scanned, or null */
   const [scanFor, setScanFor] = React.useState<number | null>(null);
 
@@ -52,15 +56,21 @@ export function ProductForm({
     setS((prev) => ({ ...prev, translations: { ...prev.translations, [lang]: { ...prev.translations[lang], [field]: value } } }));
   const setVariant = (i: number, p: Partial<VariantState>) => setS((prev) => ({ ...prev, variants: prev.variants.map((v, j) => (j === i ? { ...v, ...p } : v)) }));
 
-  async function onUpload(files: FileList | null) {
-    if (!files?.length) return;
+  async function onUpload(input: HTMLInputElement) {
+    const files = Array.from(input.files ?? []);
+    input.value = ""; // allow picking the same file again (e.g. with another processing mode)
+    if (!files.length) return;
     setUploading(true);
-    for (const file of Array.from(files).slice(0, 12 - s.images.length)) {
+    for (const file of files.slice(0, 12 - s.images.length)) {
       const fd = new FormData();
-      fd.set("file", file);
+      fd.set("file", await shrinkImage(file));
+      fd.set("mode", photoMode);
+      fd.set("countryId", s.countryId);
       const res = await uploadProductImageAction(fd);
-      if (res.ok) setS((prev) => ({ ...prev, images: [...prev.images, { url: res.data.url, alt: prev.translations.uk.name }] }));
-      else toast.error(te.has(res.error) ? te(res.error) : te("generic"));
+      if (res.ok) {
+        setS((prev) => ({ ...prev, images: [...prev.images, { url: res.data.url, alt: prev.translations.uk.name }] }));
+        if (!res.data.processed) toast.warning(t("photoNotProcessed"));
+      } else toast.error(te.has(res.error) ? te(res.error) : te("generic"));
     }
     setUploading(false);
   }
@@ -343,9 +353,18 @@ export function ProductForm({
                 </li>
               ))}
             </ul>
+            <Field label={t("photoMode")} htmlFor="f-photo-mode" hint={t("photoModeHint")} className="mt-4">
+              <Select id="f-photo-mode" value={photoMode} onChange={(e) => setPhotoMode(e.target.value as PhotoMode)} disabled={uploading}>
+                {PHOTO_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {t(`photoModes.${m}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
             <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border-2 border-ink bg-white px-4 py-2 text-sm font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-coral-500">
-              <Upload className="size-4" aria-hidden="true" /> {uploading ? t("uploading") : t("upload")}
-              <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple className="sr-only" disabled={uploading || s.images.length >= 12} onChange={(e) => onUpload(e.target.files)} />
+              <Upload className="size-4" aria-hidden="true" /> {uploading ? (photoMode === "none" ? t("uploading") : t("photoProcessing")) : t("upload")}
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple className="sr-only" disabled={uploading || s.images.length >= 12} onChange={(e) => onUpload(e.currentTarget)} />
             </label>
           </Card>
         </div>

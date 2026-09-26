@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { toActionError, zodFieldErrors, type ActionResult } from "@/lib/errors";
 import { revalidateStorefront } from "@/lib/revalidate";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, getStorage, sniffImageType } from "@/lib/integrations/storage";
+import { stylizeProductPhoto } from "@/lib/images/stylize";
 import { logAdminAction } from "@/features/admin/log";
 import { productInputSchema, type ProductInput } from "./schema";
 import { deleteProducts, duplicateProduct, saveProduct } from "./service";
@@ -69,17 +70,37 @@ export async function bulkUpdateProductsAction(input: z.input<typeof bulkSchema>
   }
 }
 
-/** Uploads one product image through the configured StorageProvider. Validates by magic bytes. */
-export async function uploadProductImageAction(fd: FormData): Promise<ActionResult<{ url: string }>> {
+const photoModeSchema = z.enum(["auto", "plain", "hull", "box", "none"]).catch("auto");
+
+/**
+ * Uploads one product image through the configured StorageProvider. Validates by magic bytes.
+ * Unless mode=none, the photo is converted to the shop style (background removed, country
+ * colour backdrop — src/lib/images/stylize.ts). `processed: false` = no plain background
+ * was found and the original was stored.
+ */
+export async function uploadProductImageAction(fd: FormData): Promise<ActionResult<{ url: string; processed: boolean }>> {
   try {
     await requirePermission("products:write");
     const file = fd.get("file");
     if (!(file instanceof File) || file.size === 0 || file.size > MAX_IMAGE_BYTES) return { ok: false, error: "invalid_file" };
-    const buf = Buffer.from(await file.arrayBuffer());
-    const type = sniffImageType(buf);
+    let buf: Buffer = Buffer.from(await file.arrayBuffer());
+    let type = sniffImageType(buf);
     if (!type || !ALLOWED_IMAGE_TYPES[type]) return { ok: false, error: "invalid_file" };
+
+    const mode = photoModeSchema.parse(fd.get("mode"));
+    let processed = false;
+    if (mode !== "none") {
+      const countryId = fd.get("countryId");
+      const country = typeof countryId === "string" && countryId ? await db.country.findUnique({ where: { id: countryId }, select: { code: true } }) : null;
+      const res = await stylizeProductPhoto(buf, { country: country?.code, mode });
+      if (res) {
+        buf = res.image;
+        type = "image/webp";
+        processed = true;
+      }
+    }
     const url = await getStorage().put("products", file.name, buf, type);
-    return { ok: true, data: { url } };
+    return { ok: true, data: { url, processed: processed || mode === "none" } };
   } catch (err) {
     return toActionError(err);
   }
