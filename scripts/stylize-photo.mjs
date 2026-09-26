@@ -18,6 +18,13 @@ if (!input || !slug) {
   process.exit(1);
 }
 const debug = flags.includes("--debug");
+// --hull: for WHITE packaging on a white background. The flood fill can't tell the white
+// pack from the white background, so keep everything inside the convex hull of the
+// coloured parts (print, logo, cap). Works for convex packs: bottles, cups, bags, boxes.
+const useHull = flags.includes("--hull");
+// --box: like --hull, but for rectangular white bags whose edges have no print:
+// keep the (slightly padded, rounded) bounding box of the coloured parts.
+const useBox = flags.includes("--box");
 
 // Same palette as src/lib/placeholder-art.ts
 const PALETTES = {
@@ -77,6 +84,9 @@ async function cutout(file) {
     }
   }
 
+  if (useHull) fillConvexHull(bg, w, h);
+  if (useBox) fillBoundingBox(bg, w, h);
+
   // Alpha: 0 for background; product pixels that touch the background get a softened
   // value (3×3 average) so the cut edge isn't jagged. Done by hand to keep 1 value/pixel.
   const rgba = Buffer.alloc(w * h * 4);
@@ -106,6 +116,81 @@ async function cutout(file) {
   }
   const removed = bg.reduce((s, v) => s + v, 0) / (w * h);
   return { image: sharp(rgba, { raw: { width: w, height: h, channels: 4 } }).png(), removed };
+}
+
+/** Marks everything inside the convex hull of the foreground as foreground (bg[i] = 0). */
+function fillConvexHull(bg, w, h) {
+  // extreme foreground points per row are enough to build the hull
+  const pts = [];
+  for (let y = 0; y < h; y++) {
+    let minX = -1;
+    let maxX = -1;
+    for (let x = 0; x < w; x++) {
+      if (!bg[y * w + x]) {
+        if (minX < 0) minX = x;
+        maxX = x;
+      }
+    }
+    if (minX >= 0) pts.push([minX, y], [maxX, y]);
+  }
+  if (pts.length < 3) return;
+  // Andrew's monotone chain
+  pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower = [];
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+    lower.push(p);
+  }
+  const upper = [];
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+    upper.push(p);
+  }
+  const hull = lower.slice(0, -1).concat(upper.slice(0, -1));
+  // scanline polygon fill
+  for (let y = 0; y < h; y++) {
+    const xs = [];
+    for (let i = 0; i < hull.length; i++) {
+      const [x1, y1] = hull[i];
+      const [x2, y2] = hull[(i + 1) % hull.length];
+      if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) xs.push(x1 + ((y - y1) * (x2 - x1)) / (y2 - y1));
+    }
+    xs.sort((a, b) => a - b);
+    for (let k = 0; k + 1 < xs.length; k += 2) {
+      for (let x = Math.ceil(xs[k]); x <= Math.floor(xs[k + 1]); x++) bg[y * w + x] = 0;
+    }
+  }
+}
+
+/** Marks the padded, rounded bounding box of the foreground as foreground. */
+function fillBoundingBox(bg, w, h) {
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!bg[y * w + x]) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return;
+  const pad = Math.round(Math.min(w, h) * 0.015);
+  x0 = Math.max(0, x0 - pad);
+  y0 = Math.max(0, y0 - pad);
+  x1 = Math.min(w - 1, x1 + pad);
+  y1 = Math.min(h - 1, y1 + pad);
+  const r = Math.round(Math.min(x1 - x0, y1 - y0) * 0.05); // corner radius
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      const cx = x < x0 + r ? x0 + r : x > x1 - r ? x1 - r : x;
+      const cy = y < y0 + r ? y0 + r : y > y1 - r ? y1 - r : y;
+      if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) bg[y * w + x] = 0;
+    }
+  }
 }
 
 /** 2) Background in the placeholder style. */
