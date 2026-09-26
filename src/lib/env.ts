@@ -15,10 +15,16 @@ const setting = (fallback: string) =>
 const schema = z.object({
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
   // Unset → vercel-blob when a Blob token exists (see findBlobToken), otherwise local.
+  // Tolerant like setting(): "Vercel-Blob ", "blob", '"local"'… — an odd value must not break every page.
   STORAGE_PROVIDER: z
-    .enum(["local", "vercel-blob", "cloudinary", "s3", "supabase"])
+    .string()
     .optional()
-    .or(z.literal("").transform(() => undefined)),
+    .transform((v) => {
+      const s = v?.trim().replace(/^["']+|["']+$/g, "").trim().toLowerCase().replace(/[\s_]+/g, "-");
+      if (!s) return undefined;
+      if (s === "blob" || s === "vercel") return "vercel-blob" as const;
+      return (["local", "vercel-blob", "cloudinary", "s3", "supabase"] as const).find((p) => p === s);
+    }),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
   STORAGE_URL: z.string().default("/uploads"),
   STORAGE_LOCAL_DIR: z.string().default("storage/uploads"),

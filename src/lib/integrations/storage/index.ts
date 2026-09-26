@@ -80,7 +80,9 @@ class VercelBlobStorageProvider implements StorageProvider {
  */
 export function getStorage(): StorageProvider {
   const e = env();
-  const id = e.STORAGE_PROVIDER ?? (e.BLOB_READ_WRITE_TOKEN ? "vercel-blob" : "local");
+  let id = e.STORAGE_PROVIDER ?? (e.BLOB_READ_WRITE_TOKEN ? "vercel-blob" : "local");
+  // Vercel's disk is read-only, so "local" can never work there — use the connected Blob store.
+  if (id === "local" && process.env.VERCEL && e.BLOB_READ_WRITE_TOKEN) id = "vercel-blob";
   if (id === "vercel-blob") {
     if (!e.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN is required for vercel-blob storage");
     return new VercelBlobStorageProvider();

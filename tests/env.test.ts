@@ -35,6 +35,16 @@ describe("env settings are tolerant to dashboard noise", () => {
     expect((await loadEnv({ BLOB_READ_WRITE_TOKEN: undefined, OTHER_READ_WRITE_TOKEN: "not-a-blob-token" })).BLOB_READ_WRITE_TOKEN).toBeUndefined();
   });
 
+  it.each([
+    [" Vercel-Blob ", "vercel-blob"],
+    ['"blob"', "vercel-blob"],
+    ["local", "local"],
+    ["", undefined],
+    ["nonsense", undefined],
+  ])("STORAGE_PROVIDER=%j → %s", async (value, expected) => {
+    expect((await loadEnv({ STORAGE_PROVIDER: value })).STORAGE_PROVIDER).toBe(expected);
+  });
+
   it("still requires a real AUTH_SECRET", async () => {
     await expect(loadEnv({ AUTH_SECRET: "short" })).rejects.toThrow(/AUTH_SECRET/);
   });
