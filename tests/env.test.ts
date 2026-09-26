@@ -28,6 +28,13 @@ describe("env settings are tolerant to dashboard noise", () => {
     expect((await loadEnv({ NOTIFIER: "" })).NOTIFIER).toBe("console");
   });
 
+  it("finds the Blob token under any connection prefix", async () => {
+    const token = "vercel_blob_rw_abc_123";
+    expect((await loadEnv({ BLOB_READ_WRITE_TOKEN: undefined, STORAGE_READ_WRITE_TOKEN: token })).BLOB_READ_WRITE_TOKEN).toBe(token);
+    expect((await loadEnv({ BLOB_READ_WRITE_TOKEN: ` "${token}" ` })).BLOB_READ_WRITE_TOKEN).toBe(token);
+    expect((await loadEnv({ BLOB_READ_WRITE_TOKEN: undefined, OTHER_READ_WRITE_TOKEN: "not-a-blob-token" })).BLOB_READ_WRITE_TOKEN).toBeUndefined();
+  });
+
   it("still requires a real AUTH_SECRET", async () => {
     await expect(loadEnv({ AUTH_SECRET: "short" })).rejects.toThrow(/AUTH_SECRET/);
   });

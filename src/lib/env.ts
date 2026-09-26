@@ -14,7 +14,7 @@ const setting = (fallback: string) =>
 
 const schema = z.object({
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
-  // Unset → vercel-blob when BLOB_READ_WRITE_TOKEN exists, otherwise local.
+  // Unset → vercel-blob when a Blob token exists (see findBlobToken), otherwise local.
   STORAGE_PROVIDER: z
     .enum(["local", "vercel-blob", "cloudinary", "s3", "supabase"])
     .optional()
@@ -37,7 +37,23 @@ export function env() {
       const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("\n");
       throw new Error(`Invalid environment variables:\n${issues}`);
     }
-    cached = parsed.data;
+    cached = { ...parsed.data, BLOB_READ_WRITE_TOKEN: findBlobToken() };
   }
   return cached;
+}
+
+/**
+ * Vercel names the Blob token after the prefix chosen when the store is connected
+ * (BLOB_READ_WRITE_TOKEN by default, STORAGE_READ_WRITE_TOKEN, MY_PREFIX_READ_WRITE_TOKEN…).
+ * Accept any of them — Blob tokens always start with "vercel_blob_rw_".
+ */
+function findBlobToken(): string | undefined {
+  const clean = (v: string | undefined) => v?.trim().replace(/^["']+|["']+$/g, "").trim() || undefined;
+  const direct = clean(process.env.BLOB_READ_WRITE_TOKEN);
+  if (direct) return direct;
+  for (const [key, value] of Object.entries(process.env)) {
+    const v = clean(value);
+    if (key.endsWith("READ_WRITE_TOKEN") && v?.startsWith("vercel_blob_rw_")) return v;
+  }
+  return undefined;
 }
