@@ -15,7 +15,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     // Local uploads (/uploads), generated placeholders (/placeholders) and Vercel Blob.
-    localPatterns: [{ pathname: "/uploads/**" }, { pathname: "/placeholders/**" }],
+    // /product-photos: product photos shipped with the site (public/product-photos)
+    localPatterns: [{ pathname: "/uploads/**" }, { pathname: "/placeholders/**" }, { pathname: "/product-photos/**" }],
     remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
     formats: ["image/avif", "image/webp"],
   },
